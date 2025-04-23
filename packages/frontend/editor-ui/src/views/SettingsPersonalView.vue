@@ -39,14 +39,6 @@ const readyToSubmit = ref(false);
 const currentSelectedTheme = ref(useUIStore().theme);
 const themeOptions = ref<Array<{ name: ThemeOption; label: BaseTextKey }>>([
 	{
-		name: 'system',
-		label: 'settings.personal.theme.systemDefault',
-	},
-	{
-		name: 'light',
-		label: 'settings.personal.theme.light',
-	},
-	{
 		name: 'dark',
 		label: 'settings.personal.theme.dark',
 	},

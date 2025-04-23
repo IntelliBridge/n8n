@@ -1,9 +1,6 @@
 <script setup lang="ts">
 import type { FrontendSettings } from '@n8n/api-types';
-import { computed, onMounted, useCssModule, useTemplateRef } from 'vue';
-import { useFavicon } from '@vueuse/core';
-
-import LogoIcon from './logo-icon.svg';
+import { computed, useCssModule, useTemplateRef } from 'vue';
 import LogoText from './logo-text.svg';
 
 const props = defineProps<
@@ -40,24 +37,10 @@ const containerClasses = computed(() => {
 });
 
 const svg = useTemplateRef<{ $el: Element }>('logo');
-onMounted(() => {
-	if (releaseChannel === 'stable' || !('createObjectURL' in URL)) return;
-
-	const logoEl = svg.value!.$el;
-
-	// Change the logo fill color inline, so that favicon can also use it
-	const logoColor = releaseChannel === 'dev' ? '#838383' : '#E9984B';
-	logoEl.querySelector('path')?.setAttribute('fill', logoColor);
-
-	// Reuse the SVG as favicon
-	const blob = new Blob([logoEl.outerHTML], { type: 'image/svg+xml' });
-	useFavicon(URL.createObjectURL(blob));
-});
 </script>
 
 <template>
 	<div :class="containerClasses" data-test-id="n8n-logo">
-		<LogoIcon ref="logo" :class="$style.logo" />
 		<LogoText v-if="showLogoText" :class="$style.logoText" />
 		<slot />
 	</div>
@@ -72,9 +55,7 @@ onMounted(() => {
 
 .logoText {
 	margin-left: var(--spacing-5xs);
-	path {
-		fill: var(--color-text-dark);
-	}
+	width: 4rem;
 }
 
 .authView {

@@ -70,13 +70,13 @@ import type { Connection } from '@vue-flow/core';
 import { useLocalStorage } from '@vueuse/core';
 import type { EventBus } from '@n8n/utils/event-bus';
 
-let savedTheme: ThemeOption = 'system';
+let savedTheme: ThemeOption = 'dark';
 
 try {
 	const value = getThemeOverride();
 	if (isValidTheme(value)) {
-		savedTheme = value;
-		addThemeToBody(value);
+		savedTheme = 'dark';
+		addThemeToBody('dark');
 	}
 } catch (e) {}
 

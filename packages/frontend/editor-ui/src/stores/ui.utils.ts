@@ -22,13 +22,8 @@ function getQueryParam(paramName: string): string | null {
 }
 
 export function updateTheme(theme: ThemeOption) {
-	if (theme === 'system') {
-		window.document.body.removeAttribute('data-theme');
-		themeRef.value = null;
-	} else {
-		addThemeToBody(theme);
-		themeRef.value = theme;
-	}
+	addThemeToBody('dark');
+	themeRef.value = 'dark';
 }
 
 export function getPreferredTheme(): { theme: AppliedThemeOption; mediaQuery: MediaQueryList } {
