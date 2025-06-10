@@ -9,7 +9,7 @@ export function addThemeToBody(theme: AppliedThemeOption) {
 }
 
 export function isValidTheme(theme: string | null): theme is AppliedThemeOption {
-	return !!theme && ['light', 'dark'].includes(theme);
+	return theme === 'dark';
 }
 
 // query param allows overriding theme for demo view in preview iframe without flickering
@@ -26,11 +26,12 @@ export function updateTheme(theme: ThemeOption) {
 	themeRef.value = 'dark';
 }
 
-export function getPreferredTheme(): { theme: AppliedThemeOption; mediaQuery: MediaQueryList } {
-	const isDarkModeQuery = !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
-
+export function getPreferredTheme(): {
+	theme: AppliedThemeOption;
+	mediaQuery: MediaQueryList | null;
+} {
 	return {
-		theme: isDarkModeQuery?.matches ? 'dark' : 'light',
-		mediaQuery: isDarkModeQuery,
+		theme: 'dark',
+		mediaQuery: null,
 	};
 }

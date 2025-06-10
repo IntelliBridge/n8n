@@ -1528,8 +1528,8 @@ export type ToggleNodeCreatorOptions = {
 	hasAddedNodes?: boolean;
 };
 
-export type AppliedThemeOption = 'light' | 'dark';
-export type ThemeOption = AppliedThemeOption | 'system';
+export type AppliedThemeOption = 'dark';
+export type ThemeOption = AppliedThemeOption;
 
 export type EnterpriseEditionFeatureKey =
 	| 'AdvancedExecutionFilters'

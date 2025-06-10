@@ -58,13 +58,7 @@ import { useSettingsStore } from '@/stores/settings.store';
 import { useUsersStore } from '@/stores/users.store';
 import { dismissBannerPermanently } from '@/api/ui';
 import type { BannerName } from '@n8n/api-types';
-import {
-	addThemeToBody,
-	getPreferredTheme,
-	getThemeOverride,
-	isValidTheme,
-	updateTheme,
-} from './ui.utils';
+import { addThemeToBody, updateTheme } from './ui.utils';
 import { computed, ref } from 'vue';
 import type { Connection } from '@vue-flow/core';
 import { useLocalStorage } from '@vueuse/core';
@@ -72,13 +66,7 @@ import type { EventBus } from '@n8n/utils/event-bus';
 
 let savedTheme: ThemeOption = 'dark';
 
-try {
-	const value = getThemeOverride();
-	if (isValidTheme(value)) {
-		savedTheme = 'dark';
-		addThemeToBody('dark');
-	}
-} catch (e) {}
+addThemeToBody('dark');
 
 type UiStore = ReturnType<typeof useUIStore>;
 
@@ -223,15 +211,11 @@ export const useUIStore = defineStore(STORES.UI, () => {
 	const rootStore = useRootStore();
 	const userStore = useUsersStore();
 
-	// Keep track of the preferred theme and update it when the system preference changes
-	const preferredTheme = getPreferredTheme();
-	const preferredSystemTheme = ref<AppliedThemeOption>(preferredTheme.theme);
-	preferredTheme.mediaQuery?.addEventListener('change', () => {
-		preferredSystemTheme.value = getPreferredTheme().theme;
-	});
+	// Force dark theme
+	const preferredSystemTheme = ref<AppliedThemeOption>('dark');
 
 	const appliedTheme = computed(() => {
-		return theme.value === 'system' ? preferredSystemTheme.value : theme.value;
+		return 'dark';
 	});
 
 	const contextBasedTranslationKeys = computed(() => {
