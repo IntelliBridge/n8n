@@ -7,7 +7,7 @@ import { useSettingsStore } from '@/stores/settings.store';
 
 export type UsageTelemetry = {
 	instance_id: string;
-	action: 'view_plans' | 'manage_plan' | 'add_activation_key' | 'desktop_view_plans';
+	action: 'manage_plan' | 'add_activation_key' | 'desktop_view_plans';
 	plan_name_current: string;
 	usage: number;
 	quota: number;
@@ -113,9 +113,6 @@ export const useUsageStore = defineStore('usage', () => {
 				: activeWorkflowTriggersCount.value / activeWorkflowTriggersLimit.value >=
 					state.data.usage.activeWorkflowTriggers.warningThreshold,
 		),
-		viewPlansUrl: computed(
-			() => `${subscriptionAppUrl.value}?${commonSubscriptionAppUrlQueryParams.value}`,
-		),
 		managePlanUrl: computed(
 			() =>
 				`${subscriptionAppUrl.value}/manage?token=${managementToken.value}&${commonSubscriptionAppUrlQueryParams.value}`,
@@ -123,7 +120,7 @@ export const useUsageStore = defineStore('usage', () => {
 		isLoading: computed(() => state.loading),
 		telemetryPayload: computed<UsageTelemetry>(() => ({
 			instance_id: instanceId.value,
-			action: 'view_plans',
+			action: 'manage_plan',
 			plan_name_current: planName.value,
 			usage: activeWorkflowTriggersCount.value,
 			quota: activeWorkflowTriggersLimit.value,

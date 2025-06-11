@@ -4,7 +4,6 @@ import NodeIcon from '@/components/NodeIcon.vue';
 import { type INodeTypeDescription } from 'n8n-workflow';
 import { useI18n } from '@/composables/useI18n';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import { SCHEMA_PREVIEW_DOCS_URL } from '@/constants';
 
 const props = defineProps<{
 	title: string;
@@ -55,13 +54,7 @@ const emit = defineEmits<{
 			data-test-id="schema-preview-warning"
 			@click.stop
 		>
-			<i18n-t keypath="dataMapping.schemaView.preview">
-				<template #link>
-					<N8nLink :to="SCHEMA_PREVIEW_DOCS_URL" size="small" bold>
-						{{ i18n.baseText('generic.learnMore') }}
-					</N8nLink>
-				</template>
-			</i18n-t>
+			<span v-text="i18n.baseText('dataMapping.schemaView.preview')" />
 		</div>
 	</div>
 </template>

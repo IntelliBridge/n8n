@@ -831,15 +831,6 @@ onBeforeUnmount(() => {
 						@switch-selected-node="onSwitchSelectedNode"
 						@open-connection-node-creator="onOpenConnectionNodeCreator"
 					/>
-					<a
-						v-if="featureRequestUrl"
-						:class="$style.featureRequest"
-						target="_blank"
-						@click="onFeatureRequestClick"
-					>
-						<font-awesome-icon icon="lightbulb" />
-						{{ i18n.baseText('ndv.featureRequest') }}
-					</a>
 				</template>
 			</NDVDraggablePanels>
 		</div>

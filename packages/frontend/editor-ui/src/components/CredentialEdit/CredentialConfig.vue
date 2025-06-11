@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onBeforeMount, watch } from 'vue';
 
-import { getAppNameFromCredType, isCommunityPackageName } from '@/utils/nodeTypesUtils';
+import { getAppNameFromCredType } from '@/utils/nodeTypesUtils';
 import type {
 	ICredentialDataDecryptedObject,
 	ICredentialType,
@@ -10,16 +10,9 @@ import type {
 
 import type { IUpdateInformation } from '@/Interface';
 import AuthTypeSelector from '@/components/CredentialEdit/AuthTypeSelector.vue';
-import EnterpriseEdition from '@/components/EnterpriseEdition.ee.vue';
 import { useI18n } from '@/composables/useI18n';
 import { useTelemetry } from '@/composables/useTelemetry';
-import {
-	BUILTIN_CREDENTIALS_DOCS_URL,
-	CREDENTIAL_DOCS_EXPERIMENT,
-	DOCS_DOMAIN,
-	EnterpriseEditionFeature,
-	NEW_ASSISTANT_SESSION_MODAL,
-} from '@/constants';
+import { CREDENTIAL_DOCS_EXPERIMENT, DOCS_DOMAIN, NEW_ASSISTANT_SESSION_MODAL } from '@/constants';
 import type { PermissionsRecord } from '@/permissions';
 import { addCredentialTranslation } from '@/plugins/i18n';
 import { useCredentialsStore } from '@/stores/credentials.store';
@@ -117,33 +110,7 @@ const credentialOwnerName = computed(() =>
 	credentialsStore.getCredentialOwnerNameById(`${props.credentialId}`),
 );
 const documentationUrl = computed(() => {
-	const type = props.credentialType;
-	const activeNode = ndvStore.activeNode;
-	const isCommunityNode = activeNode ? isCommunityPackageName(activeNode.type) : false;
-
-	const docUrl = type?.documentationUrl;
-
-	if (!docUrl) {
-		return '';
-	}
-
-	let url: URL;
-	if (docUrl.startsWith('https://') || docUrl.startsWith('http://')) {
-		url = new URL(docUrl);
-		if (url.hostname !== DOCS_DOMAIN) return docUrl;
-	} else {
-		// Don't show documentation link for community nodes if the URL is not an absolute path
-		if (isCommunityNode) return '';
-		else url = new URL(`${BUILTIN_CREDENTIALS_DOCS_URL}${docUrl}/`);
-	}
-
-	if (url.hostname === DOCS_DOMAIN) {
-		url.searchParams.set('utm_source', 'n8n_app');
-		url.searchParams.set('utm_medium', 'credential_settings');
-		url.searchParams.set('utm_campaign', 'create_new_credentials_modal');
-	}
-
-	return url.href;
+	return false;
 });
 
 const isGoogleOAuthType = computed(
@@ -347,17 +314,6 @@ watch(showOAuthSuccessBanner, (newValue, oldValue) => {
 					:redact-value="true"
 				/>
 			</template>
-			<EnterpriseEdition v-else :features="[EnterpriseEditionFeature.Sharing]">
-				<div>
-					<n8n-info-tip :bold="false">
-						{{
-							i18n.baseText('credentialEdit.credentialEdit.info.sharee', {
-								interpolate: { credentialOwnerName },
-							})
-						}}
-					</n8n-info-tip>
-				</div>
-			</EnterpriseEdition>
 
 			<CredentialInputs
 				v-if="credentialType && credentialPermissions.update"
@@ -383,17 +339,6 @@ watch(showOAuthSuccessBanner, (newValue, oldValue) => {
 			<n8n-text v-if="isMissingCredentials" color="text-base" size="medium">
 				{{ i18n.baseText('credentialEdit.credentialConfig.missingCredentialType') }}
 			</n8n-text>
-
-			<EnterpriseEdition :features="[EnterpriseEditionFeature.ExternalSecrets]">
-				<template #fallback>
-					<n8n-info-tip class="mt-s">
-						{{ i18n.baseText('credentialEdit.credentialConfig.externalSecrets') }}
-						<n8n-link bold :to="i18n.baseText('settings.externalSecrets.docs')" size="small">
-							{{ i18n.baseText('credentialEdit.credentialConfig.externalSecrets.moreInfo') }}
-						</n8n-link>
-					</n8n-info-tip>
-				</template>
-			</EnterpriseEdition>
 		</div>
 		<CredentialDocs
 			v-if="showCredentialDocs"

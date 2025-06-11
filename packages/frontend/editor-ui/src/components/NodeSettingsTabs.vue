@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import type { ITab } from '@/Interface';
-import {
-	BUILTIN_NODES_DOCS_URL,
-	COMMUNITY_NODES_INSTALLATION_DOCS_URL,
-	NPM_PACKAGE_DOCS_BASE_URL,
-} from '@/constants';
+import { COMMUNITY_NODES_INSTALLATION_DOCS_URL } from '@/constants';
 import { useNDVStore } from '@/stores/ndv.store';
 import { useWorkflowsStore } from '@/stores/workflows.store';
 import type { INodeTypeDescription } from 'n8n-workflow';
@@ -51,34 +47,7 @@ const isCommunityNode = computed(() => {
 const packageName = computed(() => props.nodeType?.name.split('.')[0] ?? '');
 
 const documentationUrl = computed(() => {
-	const nodeType = props.nodeType;
-
-	if (!nodeType) {
-		return '';
-	}
-
-	if (nodeType.documentationUrl && nodeType.documentationUrl.startsWith('http')) {
-		return nodeType.documentationUrl;
-	}
-
-	const utmParams = new URLSearchParams({
-		utm_source: 'n8n_app',
-		utm_medium: 'node_settings_modal-credential_link',
-		utm_campaign: nodeType.name,
-	});
-
-	// Built-in node documentation available via its codex entry
-	const primaryDocUrl = nodeType.codex?.resources?.primaryDocumentation?.[0]?.url;
-	if (primaryDocUrl) {
-		return `${primaryDocUrl}?${utmParams.toString()}`;
-	}
-
-	if (isCommunityNode.value) {
-		return `${NPM_PACKAGE_DOCS_BASE_URL}${packageName.value}`;
-	}
-
-	// Fallback to the root of the node documentation
-	return `${BUILTIN_NODES_DOCS_URL}?${utmParams.toString()}`;
+	return false;
 });
 
 const options = computed<ITab[]>(() => {

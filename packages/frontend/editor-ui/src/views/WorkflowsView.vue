@@ -1145,14 +1145,6 @@ const renameFolder = async (folderId: string) => {
 };
 
 const createFolderInCurrent = async () => {
-	// Show the community plus enrollment modal if the user is self-hosted, and hasn't enabled folders
-	if (showRegisteredCommunityCTA.value) {
-		uiStore.openModalWithData({
-			name: COMMUNITY_PLUS_ENROLLMENT_MODAL,
-			data: { customHeading: i18n.baseText('folders.registeredCommunity.cta.heading') },
-		});
-		return;
-	}
 	if (!route.params.projectId) return;
 	const currentParent = currentFolder.value?.name || projectName.value;
 	if (!currentParent) return;
