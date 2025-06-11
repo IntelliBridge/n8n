@@ -43,13 +43,7 @@ export class MemoryMongoDbChat implements INodeType {
 				AI: ['Memory'],
 				Memory: ['Other memories'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.memorymongochat/',
-					},
-				],
-			},
+			resources: {},
 		},
 		inputs: [],
 		outputs: [NodeConnectionTypes.AiMemory],

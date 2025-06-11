@@ -34,13 +34,7 @@ export class McpTrigger extends Node {
 				'Core Nodes': ['Other Trigger Nodes'],
 			},
 			alias: ['Model Context Protocol', 'MCP Server'],
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.mcptrigger/',
-					},
-				],
-			},
+			resources: {},
 		},
 		triggerPanel: {
 			header: 'Listen for MCP events',

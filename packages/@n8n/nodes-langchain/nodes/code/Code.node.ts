@@ -127,13 +127,7 @@ export class Code implements INodeType {
 			subcategories: {
 				AI: ['Miscellaneous'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.code/',
-					},
-				],
-			},
+			resources: {},
 		},
 		inputs: `={{ ((values) => { const connectorTypes = ${JSON.stringify(
 			connectorTypes,

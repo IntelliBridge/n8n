@@ -49,13 +49,7 @@ export class TextSplitterRecursiveCharacterTextSplitter implements INodeType {
 			subcategories: {
 				AI: ['Text Splitters'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.textsplitterrecursivecharactertextsplitter/',
-					},
-				],
-			},
+			resources: {},
 		},
 		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node
 		inputs: [],

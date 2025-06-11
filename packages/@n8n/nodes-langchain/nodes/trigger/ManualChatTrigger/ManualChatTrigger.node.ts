@@ -23,13 +23,7 @@ export class ManualChatTrigger implements INodeType {
 		},
 		codex: {
 			categories: ['Core Nodes'],
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/',
-					},
-				],
-			},
+			resources: {},
 			subcategories: {
 				'Core Nodes': ['Other Trigger Nodes'],
 			},
