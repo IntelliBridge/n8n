@@ -235,9 +235,9 @@
 	--color-button-primary-hover-active-border: var(--prim-color-primary-shade-100);
 	--color-button-primary-hover-active-focus-background: var(--prim-color-primary-shade-100);
 	--color-button-primary-focus-outline: var(--prim-color-primary-alpha-035);
-	--color-button-primary-disabled-font: var(--prim-gray-0-alpha-075);
-	--color-button-primary-disabled-border: var(--prim-color-primary-tint-200);
-	--color-button-primary-disabled-background: var(--prim-color-primary-tint-200);
+	--color-button-primary-disabled-font: #3d4551;
+	--color-button-primary-disabled-border: #ccc;
+	--color-button-primary-disabled-background: #ccc;
 
 	// Button secondary
 	--color-button-secondary-font: var(--prim-gray-670);
@@ -248,8 +248,9 @@
 	--color-button-secondary-hover-background: var(--prim-color-primary-tint-300);
 	--color-button-secondary-active-focus-background: var(--prim-color-primary-tint-270);
 	--color-button-secondary-focus-outline: var(--prim-gray-120);
-	--color-button-secondary-disabled-font: var(--prim-gray-200);
-	--color-button-secondary-disabled-border: var(--prim-gray-200);
+	--color-button-secondary-disabled-font: #3d4551;
+	--color-button-secondary-disabled-border: #ccc;
+	--color-button-secondary-disabled-background: #ccc;
 
 	// Button success, warning, danger
 	--color-button-success-font: var(--prim-gray-0);
