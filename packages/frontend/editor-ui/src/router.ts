@@ -1,6 +1,5 @@
 import type {
 	NavigationGuardNext,
-	RouteLocation,
 	RouteRecordRaw,
 	RouteLocationRaw,
 	RouteLocationNormalized,
@@ -8,7 +7,6 @@ import type {
 import { createRouter, createWebHistory, isNavigationFailure } from 'vue-router';
 import { useExternalHooks } from '@/composables/useExternalHooks';
 import { useSettingsStore } from '@/stores/settings.store';
-import { useTemplatesStore } from '@/stores/templates.store';
 import { useUIStore } from '@/stores/ui.store';
 import { useSSOStore } from '@/stores/sso.store';
 import { useTestDefinitionStore } from '@/stores/testDefinition.store.ee';
@@ -17,7 +15,6 @@ import { useTelemetry } from '@/composables/useTelemetry';
 import { middleware } from '@/utils/rbac/middleware';
 import type { RouterMiddleware } from '@/types/router';
 import { initializeAuthenticatedFeatures, initializeCore } from '@/init';
-import { tryToParseNumber } from '@/utils/typesUtils';
 import { projectsRoutes } from '@/routes/projects.routes';
 import { insightsRoutes } from '@/features/insights/insights.router';
 import TestDefinitionRunDetailView from './views/TestDefinition/TestDefinitionRunDetailView.vue';
@@ -47,18 +44,11 @@ const SettingsLogStreamingView = async () => await import('./views/SettingsLogSt
 const SetupView = async () => await import('./views/SetupView.vue');
 const SigninView = async () => await import('./views/SigninView.vue');
 const SignupView = async () => await import('./views/SignupView.vue');
-const TemplatesCollectionView = async () => await import('@/views/TemplatesCollectionView.vue');
-const TemplatesWorkflowView = async () => await import('@/views/TemplatesWorkflowView.vue');
-const SetupWorkflowFromTemplateView = async () =>
-	await import('@/views/SetupWorkflowFromTemplateView/SetupWorkflowFromTemplateView.vue');
-const TemplatesSearchView = async () => await import('@/views/TemplatesSearchView.vue');
-const VariablesView = async () => await import('@/views/VariablesView.vue');
 const SettingsUsageAndPlan = async () => await import('./views/SettingsUsageAndPlan.vue');
 const SettingsSso = async () => await import('./views/SettingsSso.vue');
 const SignoutView = async () => await import('@/views/SignoutView.vue');
 const SamlOnboarding = async () => await import('@/views/SamlOnboarding.vue');
 const SettingsSourceControl = async () => await import('./views/SettingsSourceControl.vue');
-const SettingsExternalSecrets = async () => await import('./views/SettingsExternalSecrets.vue');
 const WorkerView = async () => await import('./views/WorkerView.vue');
 const WorkflowHistory = async () => await import('@/views/WorkflowHistory.vue');
 const WorkflowOnboardingView = async () => await import('@/views/WorkflowOnboardingView.vue');
@@ -71,16 +61,6 @@ const TestDefinitionEditView = async () =>
 const TestDefinitionRootView = async () =>
 	await import('./views/TestDefinition/TestDefinitionRootView.vue');
 
-function getTemplatesRedirect(defaultRedirect: VIEWS[keyof VIEWS]): { name: string } | false {
-	const settingsStore = useSettingsStore();
-	const isTemplatesEnabled: boolean = settingsStore.isTemplatesEnabled;
-	if (!isTemplatesEnabled) {
-		return { name: `${defaultRedirect}` || VIEWS.NOT_FOUND };
-	}
-
-	return false;
-}
-
 export const routes: RouteRecordRaw[] = [
 	{
 		path: '/',
@@ -88,123 +68,6 @@ export const routes: RouteRecordRaw[] = [
 		meta: {
 			middleware: ['authenticated'],
 		},
-	},
-	{
-		path: '/collections/:id',
-		name: VIEWS.COLLECTION,
-		components: {
-			default: TemplatesCollectionView,
-			sidebar: MainSidebar,
-		},
-		meta: {
-			templatesEnabled: true,
-			telemetry: {
-				getProperties(route: RouteLocation) {
-					const templatesStore = useTemplatesStore();
-					return {
-						collection_id: route.params.id,
-						wf_template_repo_session_id: templatesStore.currentSessionId,
-					};
-				},
-			},
-			getRedirect: getTemplatesRedirect,
-			middleware: ['authenticated'],
-		},
-	},
-	// Following two routes are kept in-app:
-	// Single workflow view, used when a custom template host is set
-	// Also, reachable directly from this URL
-	{
-		path: '/templates/:id',
-		name: VIEWS.TEMPLATE,
-		components: {
-			default: TemplatesWorkflowView,
-			sidebar: MainSidebar,
-		},
-		meta: {
-			templatesEnabled: true,
-			getRedirect: getTemplatesRedirect,
-			telemetry: {
-				getProperties(route: RouteLocation) {
-					const templatesStore = useTemplatesStore();
-					return {
-						template_id: tryToParseNumber(
-							Array.isArray(route.params.id) ? route.params.id[0] : route.params.id,
-						),
-						wf_template_repo_session_id: templatesStore.currentSessionId,
-					};
-				},
-			},
-			middleware: ['authenticated'],
-		},
-	},
-	// Template setup view, this is the landing view for website users
-	{
-		path: '/templates/:id/setup',
-		name: VIEWS.TEMPLATE_SETUP,
-		components: {
-			default: SetupWorkflowFromTemplateView,
-			sidebar: MainSidebar,
-		},
-		meta: {
-			templatesEnabled: true,
-			getRedirect: getTemplatesRedirect,
-			telemetry: {
-				getProperties(route: RouteLocation) {
-					const templatesStore = useTemplatesStore();
-					return {
-						template_id: tryToParseNumber(
-							Array.isArray(route.params.id) ? route.params.id[0] : route.params.id,
-						),
-						wf_template_repo_session_id: templatesStore.currentSessionId,
-					};
-				},
-			},
-			middleware: ['authenticated'],
-		},
-	},
-	{
-		path: '/templates/',
-		name: VIEWS.TEMPLATES,
-		components: {
-			default: TemplatesSearchView,
-			sidebar: MainSidebar,
-		},
-		meta: {
-			templatesEnabled: true,
-			getRedirect: getTemplatesRedirect,
-			// Templates view remembers it's scroll position on back
-			scrollOffset: 0,
-			telemetry: {
-				getProperties() {
-					const templatesStore = useTemplatesStore();
-					return {
-						wf_template_repo_session_id: templatesStore.currentSessionId,
-					};
-				},
-			},
-			setScrollPosition(pos: number) {
-				this.scrollOffset = pos;
-			},
-			middleware: ['authenticated'],
-		},
-		beforeEnter: (_to, _from, next) => {
-			const templatesStore = useTemplatesStore();
-			if (!templatesStore.hasCustomTemplatesHost) {
-				window.location.href = templatesStore.websiteTemplateRepositoryURL;
-			} else {
-				next();
-			}
-		},
-	},
-	{
-		path: '/variables',
-		name: VIEWS.VARIABLES,
-		components: {
-			default: VariablesView,
-			sidebar: MainSidebar,
-		},
-		meta: { middleware: ['authenticated'] },
 	},
 	{
 		path: '/workflow/:name/debug/:executionId',
@@ -335,7 +198,6 @@ export const routes: RouteRecordRaw[] = [
 		meta: {
 			templatesEnabled: true,
 			keepWorkflowAlive: true,
-			getRedirect: getTemplatesRedirect,
 			middleware: ['authenticated'],
 		},
 	},
@@ -350,7 +212,6 @@ export const routes: RouteRecordRaw[] = [
 		meta: {
 			templatesEnabled: true,
 			keepWorkflowAlive: true,
-			getRedirect: () => getTemplatesRedirect(VIEWS.NEW_WORKFLOW),
 			middleware: ['authenticated'],
 		},
 	},
@@ -605,29 +466,6 @@ export const routes: RouteRecordRaw[] = [
 				},
 			},
 			{
-				path: 'external-secrets',
-				name: VIEWS.EXTERNAL_SECRETS_SETTINGS,
-				components: {
-					settingsView: SettingsExternalSecrets,
-				},
-				meta: {
-					middleware: ['authenticated', 'rbac'],
-					middlewareOptions: {
-						rbac: {
-							scope: ['externalSecretsProvider:list', 'externalSecretsProvider:update'],
-						},
-					},
-					telemetry: {
-						pageCategory: 'settings',
-						getProperties() {
-							return {
-								feature: 'external-secrets',
-							};
-						},
-					},
-				},
-			},
-			{
 				path: 'sso',
 				name: VIEWS.SSO_SETTINGS,
 				components: {
@@ -842,7 +680,6 @@ router.afterEach((to, from) => {
 	try {
 		const telemetry = useTelemetry();
 		const uiStore = useUIStore();
-		const templatesStore = useTemplatesStore();
 
 		/**
 		 * Run external hooks
@@ -855,11 +692,6 @@ router.afterEach((to, from) => {
 		 */
 
 		uiStore.currentView = (to.name as string) ?? '';
-		if (to.meta?.templatesEnabled) {
-			templatesStore.setSessionId();
-		} else {
-			templatesStore.resetSessionId(); // reset telemetry session id when user leaves template pages
-		}
 		telemetry.page(to);
 	} catch (failure) {
 		if (isNavigationFailure(failure)) {

@@ -86,8 +86,7 @@ export class VectorStoreQdrant extends createVectorStoreNode<ExtendedQdrantVecto
 		name: 'vectorStoreQdrant',
 		description: 'Work with your data in a Qdrant collection',
 		icon: 'file:qdrant.svg',
-		docsUrl:
-			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreqdrant/',
+		docsUrl: '',
 		credentials: [
 			{
 				name: 'qdrantApi',

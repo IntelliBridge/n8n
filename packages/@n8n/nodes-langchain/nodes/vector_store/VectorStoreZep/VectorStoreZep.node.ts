@@ -1,9 +1,8 @@
 import { ZepVectorStore } from '@langchain/community/vectorstores/zep';
 import { ZepCloudVectorStore } from '@langchain/community/vectorstores/zep_cloud';
+import { metadataFilterField } from '@utils/sharedFields';
 import type { IDataObject, INodeProperties } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
-
-import { metadataFilterField } from '@utils/sharedFields';
 
 import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
 
@@ -58,8 +57,7 @@ export class VectorStoreZep extends createVectorStoreNode<ZepVectorStore | ZepCl
 			},
 		],
 		icon: 'file:zep.png',
-		docsUrl:
-			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorezep/',
+		docsUrl: '',
 	},
 	sharedFields: [
 		{

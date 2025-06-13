@@ -27,13 +27,7 @@ export class RetrieverVectorStore implements INodeType {
 			subcategories: {
 				AI: ['Retrievers'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.retrievervectorstore/',
-					},
-				],
-			},
+			resources: {},
 		},
 		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node
 		inputs: [

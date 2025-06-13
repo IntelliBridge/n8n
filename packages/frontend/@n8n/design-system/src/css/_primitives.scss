@@ -4,37 +4,37 @@
 // Tokens should be used instead in components an other UI elements
 
 @mixin primitives {
-	// Gray
-	--prim-gray-h: 220;
+	// Gray - Workforce palette
+	--prim-gray-h: 207;
 
-	--prim-gray-820: hsl(var(--prim-gray-h), 1%, 18%);
-	--prim-gray-800: hsl(var(--prim-gray-h), 1%, 20%);
-	--prim-gray-780: hsl(var(--prim-gray-h), 1%, 22%);
-	--prim-gray-740: hsl(var(--prim-gray-h), 2%, 26%);
-	--prim-gray-670: hsl(var(--prim-gray-h), 2%, 33%);
-	--prim-gray-540: hsl(var(--prim-gray-h), 4%, 46%);
-	--prim-gray-490: hsl(var(--prim-gray-h), 3%, 51%);
-	--prim-gray-420: hsl(var(--prim-gray-h), 4%, 58%);
-	--prim-gray-320: hsl(var(--prim-gray-h), 10%, 68%);
-	--prim-gray-320-alpha-010: hsla(var(--prim-gray-h), 10%, 68%, 0.1);
-	--prim-gray-200: hsl(var(--prim-gray-h), 18%, 80%);
-	--prim-gray-120: hsl(var(--prim-gray-h), 25%, 88%);
-	--prim-gray-70: hsl(var(--prim-gray-h), 32%, 93%);
-	--prim-gray-70-alpha-01: hsla(var(--prim-gray-h), 32%, 93%, 0.1);
-	--prim-gray-40: hsl(var(--prim-gray-h), 40%, 96%);
-	--prim-gray-30: hsl(var(--prim-gray-h), 43%, 97%);
-	--prim-gray-25: hsl(var(--prim-gray-h), 50%, 97.5%);
-	--prim-gray-10: hsl(var(--prim-gray-h), 50%, 99%);
-	--prim-gray-0-alpha-075: hsla(var(--prim-gray-h), 50%, 100%, 0.75);
-	--prim-gray-0-alpha-030: hsla(var(--prim-gray-h), 50%, 100%, 0.3);
-	--prim-gray-0-alpha-025: hsla(var(--prim-gray-h), 50%, 100%, 0.25);
-	--prim-gray-0-alpha-010: hsla(var(--prim-gray-h), 50%, 100%, 0.1);
-	--prim-gray-0: hsl(var(--prim-gray-h), 50%, 100%);
+	--prim-gray-820: #181616; // Workforce 40 - Dark
+	--prim-gray-800: #181616; // Workforce 40 - Dark
+	--prim-gray-780: #181616; // Workforce 40 - Dark
+	--prim-gray-740: #26323f; // Workforce 60
+	--prim-gray-670: #3d4551; // Workforce 50
+	--prim-gray-540: #979ca4; // Workforce 45
+	--prim-gray-490: #979ca4; // Workforce 45
+	--prim-gray-420: #979ca4; // Workforce 45
+	--prim-gray-320: #f0f1f2; // Workforce 20
+	--prim-gray-320-alpha-010: rgba(240, 241, 242, 0.1);
+	--prim-gray-200: #f0f1f2; // Workforce 20
+	--prim-gray-120: #ffffff; // Workforce 10
+	--prim-gray-70: #ffffff; // Workforce 10
+	--prim-gray-70-alpha-01: rgba(255, 255, 255, 0.1);
+	--prim-gray-40: #ffffff; // Workforce 10
+	--prim-gray-30: #ffffff; // Workforce 10
+	--prim-gray-25: #ffffff; // Workforce 10
+	--prim-gray-10: #ffffff; // Workforce 10
+	--prim-gray-0-alpha-075: rgba(255, 255, 255, 0.75);
+	--prim-gray-0-alpha-030: rgba(255, 255, 255, 0.3);
+	--prim-gray-0-alpha-025: rgba(255, 255, 255, 0.25);
+	--prim-gray-0-alpha-010: rgba(255, 255, 255, 0.1);
+	--prim-gray-0: #ffffff;
 
-	// Color Primary
-	--prim-color-primary-h: 203;
-	--prim-color-primary-s: 70.9%;
-	--prim-color-primary-l: 45.9%;
+	// Color Primary - Workforce Yellow
+	--prim-color-primary-h: 55;
+	--prim-color-primary-s: 100%;
+	--prim-color-primary-l: 50%;
 
 	--prim-color-primary-shade-300: hsl(
 		var(--prim-color-primary-h),
@@ -95,10 +95,10 @@
 		calc(var(--prim-color-primary-l) + 30%)
 	);
 
-	// Color Secondary
-	--prim-color-secondary-h: 247;
-	--prim-color-secondary-s: 49%;
-	--prim-color-secondary-l: 53%;
+	// Color Secondary - Workforce Blue-Gray
+	--prim-color-secondary-h: 207;
+	--prim-color-secondary-s: 27%;
+	--prim-color-secondary-l: 34%;
 
 	--prim-color-secondary-shade-250: hsl(
 		var(--prim-color-secondary-h),
@@ -148,10 +148,10 @@
 		calc(var(--prim-color-secondary-l) + 40%)
 	);
 
-	// Color Alternate A
-	--prim-color-alt-a-h: 150;
-	--prim-color-alt-a-s: 60%;
-	--prim-color-alt-a-l: 40%;
+	// Color Alternate A - Workforce Complete (Green)
+	--prim-color-alt-a-h: 133;
+	--prim-color-alt-a-s: 64%;
+	--prim-color-alt-a-l: 54%;
 
 	--prim-color-alt-a-shade-200: hsl(
 		var(--prim-color-alt-a-h),
@@ -201,10 +201,10 @@
 		calc(var(--prim-color-alt-a-l) + 55%)
 	);
 
-	// Color Alternate B
-	--prim-color-alt-b-h: 36;
-	--prim-color-alt-b-s: 77%;
-	--prim-color-alt-b-l: 57%;
+	// Color Alternate B - Workforce Retrying (Orange)
+	--prim-color-alt-b-h: 33;
+	--prim-color-alt-b-s: 100%;
+	--prim-color-alt-b-l: 62%;
 
 	--prim-color-alt-b-shade-350: hsl(
 		var(--prim-color-alt-b-h),
@@ -253,10 +253,10 @@
 		calc(var(--prim-color-alt-b-l) + 40%)
 	);
 
-	// Color Alternate C
-	--prim-color-alt-c-h: 355;
-	--prim-color-alt-c-s: 83%;
-	--prim-color-alt-c-l: 52%;
+	// Color Alternate C - Workforce Error (Red)
+	--prim-color-alt-c-h: 1;
+	--prim-color-alt-c-s: 100%;
+	--prim-color-alt-c-l: 62%;
 
 	--prim-color-alt-c-shade-250: hsl(
 		var(--prim-color-alt-c-h),
@@ -310,8 +310,8 @@
 		calc(var(--prim-color-alt-c-l) + 45%)
 	);
 
-	// Color Alternate D
-	--prim-color-alt-d-h: 46;
+	// Color Alternate D - Workforce Button Light
+	--prim-color-alt-d-h: 50;
 	--prim-color-alt-d-s: 100%;
 	--prim-color-alt-d-l: 92%;
 
@@ -336,9 +336,9 @@
 		var(--prim-color-alt-d-l)
 	);
 
-	// Color Alternate E
-	--prim-color-alt-e-h: 210;
-	--prim-color-alt-e-s: 67%;
+	// Color Alternate E - Workforce Queued (Blue)
+	--prim-color-alt-e-h: 158;
+	--prim-color-alt-e-s: 58%;
 	--prim-color-alt-e-l: 57%;
 
 	--prim-color-alt-e-shade-350: hsl(

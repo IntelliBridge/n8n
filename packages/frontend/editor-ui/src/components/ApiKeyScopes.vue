@@ -115,15 +115,6 @@ function goToUpgradeApiKeyScopes() {
 				</template>
 			</ElSelect>
 		</N8nInputLabel>
-		<N8nNotice v-if="!enabled">
-			<i18n-t keypath="settings.api.scopes.upgrade">
-				<template #link>
-					<n8n-link size="small" @click="goToUpgradeApiKeyScopes">
-						{{ i18n.baseText('settings.api.scopes.upgrade.link') }}
-					</n8n-link>
-				</template>
-			</i18n-t>
-		</N8nNotice>
 	</div>
 </template>
 

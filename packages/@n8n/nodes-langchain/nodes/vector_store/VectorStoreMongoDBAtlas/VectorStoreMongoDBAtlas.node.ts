@@ -1,8 +1,7 @@
 import { MongoDBAtlasVectorSearch } from '@langchain/mongodb';
+import { metadataFilterField } from '@utils/sharedFields';
 import { MongoClient } from 'mongodb';
 import { type ILoadOptionsFunctions, NodeOperationError, type INodeProperties } from 'n8n-workflow';
-
-import { metadataFilterField } from '@utils/sharedFields';
 
 import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
 
@@ -143,8 +142,7 @@ export class VectorStoreMongoDBAtlas extends createVectorStoreNode({
 		name: 'vectorStoreMongoDBAtlas',
 		description: 'Work with your data in MongoDB Atlas Vector Store',
 		icon: { light: 'file:mongodb.svg', dark: 'file:mongodb.dark.svg' },
-		docsUrl:
-			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoremongodbatlas/',
+		docsUrl: '',
 		credentials: [
 			{
 				name: 'mongoDb',

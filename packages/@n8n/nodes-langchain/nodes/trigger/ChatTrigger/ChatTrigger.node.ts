@@ -49,13 +49,7 @@ export class ChatTrigger extends Node {
 		},
 		codex: {
 			categories: ['Core Nodes'],
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-langchain.chattrigger/',
-					},
-				],
-			},
+			resources: {},
 		},
 		maxNodes: 1,
 		inputs: `={{ (() => {

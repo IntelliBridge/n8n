@@ -97,13 +97,7 @@ export class LmChatAnthropic implements INodeType {
 				AI: ['Language Models', 'Root Nodes'],
 				'Language Models': ['Chat Models (Recommended)'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.lmchatanthropic/',
-					},
-				],
-			},
+			resources: {},
 			alias: ['claude', 'sonnet', 'opus'],
 		},
 		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node

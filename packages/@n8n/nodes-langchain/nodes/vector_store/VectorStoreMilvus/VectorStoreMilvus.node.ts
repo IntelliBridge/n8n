@@ -33,8 +33,7 @@ export class VectorStoreMilvus extends createVectorStoreNode<Milvus>({
 		name: 'vectorStoreMilvus',
 		description: 'Work with your data in Milvus Vector Store',
 		icon: { light: 'file:milvus-icon-black.svg', dark: 'file:milvus-icon-white.svg' },
-		docsUrl:
-			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoremilvus/',
+		docsUrl: '',
 		credentials: [
 			{
 				name: 'milvusApi',

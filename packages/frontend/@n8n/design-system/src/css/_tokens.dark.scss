@@ -183,9 +183,9 @@
 
 	// Button primary
 	--color-button-primary-focus-outline: var(--prim-color-primary-alpha-035);
-	--color-button-primary-disabled-font: var(--prim-gray-0-alpha-030);
-	--color-button-primary-disabled-border: transparent;
-	--color-button-primary-disabled-background: var(--prim-color-primary-alpha-050);
+	--color-button-primary-disabled-font: #ccc;
+	--color-button-primary-disabled-border: #3d4551;
+	--color-button-primary-disabled-background: #3d4551;
 
 	// Button secondary
 	--color-button-secondary-font: var(--prim-gray-70);
@@ -195,8 +195,9 @@
 	--color-button-secondary-hover-background: transparent;
 	--color-button-secondary-active-focus-background: var(--prim-color-primary-alpha-010);
 	--color-button-secondary-focus-outline: var(--prim-color-primary-alpha-035);
-	--color-button-secondary-disabled-font: var(--prim-gray-0-alpha-030);
-	--color-button-secondary-disabled-border: var(--prim-gray-0-alpha-030);
+	--color-button-secondary-disabled-font: #ccc;
+	--color-button-secondary-disabled-border: #3d4551;
+	--color-button-secondary-disabled-background: #3d4551;
 
 	// Button success, warning, danger
 	--color-button-danger-font: var(--prim-gray-0);

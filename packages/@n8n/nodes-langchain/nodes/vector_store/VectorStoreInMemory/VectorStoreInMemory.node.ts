@@ -26,11 +26,10 @@ export class VectorStoreInMemory extends createVectorStoreNode<MemoryVectorStore
 		displayName: 'Simple Vector Store',
 		name: 'vectorStoreInMemory',
 		description:
-			"Work with your data in a Simple Vector Store. Don't use this for production usage.",
-		icon: 'fa:database',
+			'Work with your data in memory. Note that this node will not persist data between workflow runs and available memory gets low.',
+		icon: 'file:inMemory.svg',
 		iconColor: 'black',
-		docsUrl:
-			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreinmemory/',
+		docsUrl: '',
 	},
 	sharedFields: [
 		{

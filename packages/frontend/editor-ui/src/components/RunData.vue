@@ -34,7 +34,6 @@ import type {
 
 import {
 	CORE_NODES_CATEGORY,
-	DATA_EDITING_DOCS_URL,
 	DATA_PINNING_DOCS_URL,
 	HTML_NODE_TYPE,
 	LOCAL_STORAGE_PIN_DATA_DISCOVERY_CANVAS_FLAG,
@@ -1591,9 +1590,6 @@ defineExpose({ enterEditMode });
 				<div :class="$style.editModeFooter">
 					<N8nInfoTip :bold="false" :class="$style.editModeFooterInfotip">
 						{{ i18n.baseText('runData.editor.copyDataInfo') }}
-						<N8nLink :to="DATA_EDITING_DOCS_URL" size="small">
-							{{ i18n.baseText('generic.learnMore') }}
-						</N8nLink>
 					</N8nInfoTip>
 				</div>
 			</div>

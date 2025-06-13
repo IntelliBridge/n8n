@@ -27,9 +27,6 @@ const pageRedirectionHelper = usePageRedirectionHelper();
 const queryParamCallback = ref<string>(
 	`callback=${encodeURIComponent(`${window.location.origin}${window.location.pathname}`)}`,
 );
-const viewPlansUrl = computed(
-	() => `${usageStore.viewPlansUrl}&${queryParamCallback.value}&source=usage_page`,
-);
 const managePlanUrl = computed(() => `${usageStore.managePlanUrl}&${queryParamCallback.value}`);
 const activationKeyModal = ref(false);
 const activationKey = ref('');
@@ -130,11 +127,6 @@ const onAddActivationKey = () => {
 	sendUsageTelemetry('add_activation_key');
 };
 
-const onViewPlans = () => {
-	void pageRedirectionHelper.goToUpgrade('usage_page', 'open');
-	sendUsageTelemetry('view_plans');
-};
-
 const onManagePlan = () => {
 	sendUsageTelemetry('manage_plan');
 };
@@ -164,15 +156,6 @@ const openCommunityRegisterModal = () => {
 		}}</n8n-heading>
 		<div v-if="!usageStore.isLoading">
 			<n8n-heading tag="h3" :class="$style.title" size="large">
-				<i18n-t keypath="settings.usageAndPlan.description" tag="span">
-					<template #name>{{ badgedPlanName.name ?? usageStore.planName }}</template>
-					<template #type>
-						<span v-if="usageStore.planId">{{
-							locale.baseText('settings.usageAndPlan.plan')
-						}}</span>
-						<span v-else>{{ locale.baseText('settings.usageAndPlan.edition') }}</span>
-					</template>
-				</i18n-t>
 				<span v-if="badgedPlanName.badge && badgedPlanName.name" :class="$style.titleTooltip">
 					<N8nTooltip placement="top">
 						<template #content>
@@ -186,19 +169,6 @@ const openCommunityRegisterModal = () => {
 					</N8nTooltip>
 				</span>
 			</n8n-heading>
-
-			<N8nNotice v-if="isCommunity && canUserRegisterCommunityPlus" class="mt-0" theme="warning">
-				<i18n-t keypath="settings.usageAndPlan.callOut">
-					<template #link>
-						<N8nButton
-							class="pl-0 pr-0"
-							text
-							:label="locale.baseText('settings.usageAndPlan.callOut.link')"
-							@click="openCommunityRegisterModal"
-						/>
-					</template>
-				</i18n-t>
-			</N8nNotice>
 
 			<div :class="$style.quota">
 				<n8n-text size="medium" color="text-light">
@@ -242,11 +212,6 @@ const openCommunityRegisterModal = () => {
 				<n8n-button v-if="usageStore.managementToken" size="large" @click="onManagePlan">
 					<a :href="managePlanUrl" target="_blank">{{
 						locale.baseText('settings.usageAndPlan.button.manage')
-					}}</a>
-				</n8n-button>
-				<n8n-button v-else size="large" @click.prevent="onViewPlans">
-					<a :href="viewPlansUrl" target="_blank">{{
-						locale.baseText('settings.usageAndPlan.button.plans')
 					}}</a>
 				</n8n-button>
 			</div>

@@ -60,13 +60,7 @@ export class ChainRetrievalQa implements INodeType {
 			subcategories: {
 				AI: ['Chains', 'Root Nodes'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainretrievalqa/',
-					},
-				],
-			},
+			resources: {},
 		},
 		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node
 		inputs: [

@@ -296,11 +296,6 @@ const sidebarItems = computed(() => {
 			position: 'top',
 		},
 		{
-			id: 'sharing',
-			label: i18n.baseText('credentialEdit.credentialEdit.sharing'),
-			position: 'top',
-		},
-		{
 			id: 'details',
 			label: i18n.baseText('credentialEdit.credentialEdit.details'),
 			position: 'top',

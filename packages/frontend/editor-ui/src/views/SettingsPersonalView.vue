@@ -6,7 +6,6 @@ import { useDocumentTitle } from '@/composables/useDocumentTitle';
 import type { IFormInputs, IUser, ThemeOption } from '@/Interface';
 import {
 	CHANGE_PASSWORD_MODAL_KEY,
-	MFA_DOCS_URL,
 	MFA_SETUP_MODAL_KEY,
 	PROMPT_MFA_CODE_MODAL_KEY,
 } from '@/constants';
@@ -297,9 +296,6 @@ onBeforeUnmount(() => {
 								? i18n.baseText('settings.personal.mfa.button.disabled.infobox')
 								: i18n.baseText('settings.personal.mfa.button.enabled.infobox')
 						}}
-						<n8n-link :to="MFA_DOCS_URL" size="small" :bold="true">
-							{{ i18n.baseText('generic.learnMore') }}
-						</n8n-link>
 					</n8n-text>
 				</div>
 				<n8n-button

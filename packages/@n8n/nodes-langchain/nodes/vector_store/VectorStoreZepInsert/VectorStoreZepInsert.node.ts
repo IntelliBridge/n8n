@@ -32,13 +32,7 @@ export class VectorStoreZepInsert implements INodeType {
 			subcategories: {
 				AI: ['Vector Stores'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorezep/',
-					},
-				],
-			},
+			resources: {},
 		},
 		credentials: [
 			{

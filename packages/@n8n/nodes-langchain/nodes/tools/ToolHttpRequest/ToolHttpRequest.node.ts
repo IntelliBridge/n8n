@@ -55,13 +55,7 @@ export class ToolHttpRequest implements INodeType {
 				AI: ['Tools'],
 				Tools: ['Recommended Tools'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolhttprequest/',
-					},
-				],
-			},
+			resources: {},
 		},
 		// Replaced by a `usableAsTool` version of the standalone HttpRequest node
 		hidden: true,

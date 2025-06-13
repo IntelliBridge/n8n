@@ -19,13 +19,7 @@ export class ChainSummarization extends VersionedNodeType {
 				subcategories: {
 					AI: ['Chains', 'Root Nodes'],
 				},
-				resources: {
-					primaryDocumentation: [
-						{
-							url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.chainsummarization/',
-						},
-					],
-				},
+				resources: {},
 			},
 			defaultVersion: 2,
 		};

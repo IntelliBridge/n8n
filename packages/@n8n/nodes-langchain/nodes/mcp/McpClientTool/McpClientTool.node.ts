@@ -42,13 +42,7 @@ export class McpClientTool implements INodeType {
 				AI: ['Model Context Protocol', 'Tools'],
 			},
 			alias: ['Model Context Protocol', 'MCP Client'],
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolmcp/',
-					},
-				],
-			},
+			resources: {},
 		},
 		inputs: [],
 		outputs: [{ type: NodeConnectionTypes.AiTool, displayName: 'Tools' }],

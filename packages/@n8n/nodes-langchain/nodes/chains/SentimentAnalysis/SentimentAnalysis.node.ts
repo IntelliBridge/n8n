@@ -42,13 +42,7 @@ export class SentimentAnalysis implements INodeType {
 			subcategories: {
 				AI: ['Chains', 'Root Nodes'],
 			},
-			resources: {
-				primaryDocumentation: [
-					{
-						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.sentimentanalysis/',
-					},
-				],
-			},
+			resources: {},
 		},
 		defaults: {
 			name: 'Sentiment Analysis',
