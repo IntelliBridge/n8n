@@ -90,9 +90,7 @@ const readOnly = computed(() => sourceControlStore.preferences.branchReadOnly);
 const isEnterprise = computed(
 	() => settingsStore.isQueueModeEnabled && settingsStore.isWorkerViewAvailable,
 );
-const showGitHubButton = computed(
-	() => !isEnterprise.value && !settingsStore.settings.inE2ETests && !githubButtonHidden.value,
-);
+const showGitHubButton = computed(() => false);
 
 watch(route, (to, from) => {
 	syncTabsWithRoute(to, from);
