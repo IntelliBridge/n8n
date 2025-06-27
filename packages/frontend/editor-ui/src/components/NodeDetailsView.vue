@@ -889,8 +889,8 @@ $main-panel-width: 360px;
 
 .backToCanvas {
 	position: fixed;
-	top: var(--spacing-xs);
-	left: var(--spacing-l);
+	top: var(--spacing-s);
+	left: 220px;
 
 	span {
 		color: var(--color-ndv-back-font);
