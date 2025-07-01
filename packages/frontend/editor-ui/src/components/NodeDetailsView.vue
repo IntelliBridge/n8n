@@ -905,13 +905,6 @@ $main-panel-width: 360px;
 	}
 }
 
-@media (min-width: $breakpoint-lg) {
-	.backToCanvas {
-		top: var(--spacing-xs);
-		left: var(--spacing-m);
-	}
-}
-
 .featureRequest {
 	position: absolute;
 	bottom: var(--spacing-4xs);
