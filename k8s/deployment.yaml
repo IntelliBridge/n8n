@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: flow
+  namespace: flow
+  labels:
+    app: flow
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: flow
+  template:
+    metadata:
+      labels:
+        app: flow
+    spec:
+      containers:
+      - name: flow
+        image: 132880019009.dkr.ecr.us-east-1.amazonaws.com/flow:latest
+        ports:
+        - containerPort: 5678
+          name: http
+        envFrom:
+        - configMapRef:
+            name: flow-config
+        - secretRef:
+            name: flow-secrets
+        resources:
+          requests:
+            memory: "1Gi"
+            cpu: "500m"
+          limits:
+            memory: "4Gi"
+            cpu: "2000m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 5678
+          initialDelaySeconds: 60
+          periodSeconds: 30
+          timeoutSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 5678
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: data-volume
+          mountPath: /home/node/.n8n
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: flow-pvc
+      restartPolicy: Always
