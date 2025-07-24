@@ -1,0 +1,20 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+aws_region    = "us-east-1"
+aws_profile   = "intellibridge"
+cluster_name  = "flow-cluster"
+
+# EC2 instance type for EKS nodes
+node_instance_type = "t3.medium"
+
+# Auto Scaling Group configuration
+desired_capacity = 2
+max_capacity     = 4
+min_capacity     = 1
+
+# ECR registry URL
+ecr_registry = "132880019009.dkr.ecr.us-east-1.amazonaws.com"
+
+# SSL certificate ARN (required for HTTPS)
+# Get this from AWS Certificate Manager
+certificate_arn = "arn:aws:acm:us-east-1:132880019009:certificate/YOUR_CERT_ARN"
