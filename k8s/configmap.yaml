@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: flow-config
+  namespace: flow
+data:
+  N8N_HOST: "flow.buildworkforce.ai"
+  WEBHOOK_TUNNEL_URL: "https://flow.buildworkforce.ai/"
+  WEBHOOK_URL: "https://flow.buildworkforce.ai/"
+  NODE_OPTIONS: "--max_old_space_size=8000"
+  DB_TYPE: "postgresdb"
+  DB_POSTGRESDB_HOST: "flowdb.cunxsqwqr7rg.us-east-1.rds.amazonaws.com"
+  DB_POSTGRESDB_PORT: "5432"
+  DB_POSTGRESDB_DATABASE: "flowdb"
+  DB_POSTGRESDB_USER: "workforce"
+  DB_POSTGRESDB_SSL_REJECT_UNAUTHORIZED: "false"
+  DB_POSTGRESDB_SSL_MODE: "require"
