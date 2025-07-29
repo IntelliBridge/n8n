@@ -229,3 +229,26 @@ resource "aws_eks_node_group" "flow_nodes" {
     Name = "flow-nodes"
   }
 }
+
+# SSL Certificate
+resource "aws_acm_certificate" "flow_cert" {
+  domain_name       = var.domain_name
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+
+  tags = {
+    Name = "flow-certificate"
+  }
+}
+
+# Certificate validation (requires Route53 hosted zone)
+resource "aws_acm_certificate_validation" "flow_cert" {
+  certificate_arn = aws_acm_certificate.flow_cert.arn
+  
+  timeouts {
+    create = "5m"
+  }
+}

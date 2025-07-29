@@ -51,3 +51,34 @@ variable "certificate_arn" {
   type        = string
   default     = ""
 }
+
+# Sensitive variables - should be provided via environment variables or secret management
+variable "n8n_encryption_key" {
+  description = "Encryption key for n8n"
+  type        = string
+  sensitive   = true
+}
+
+variable "opensearch_host" {
+  description = "OpenSearch host URL with credentials"
+  type        = string
+  sensitive   = true
+}
+
+variable "db_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
+variable "image_tag" {
+  description = "Docker image tag to deploy"
+  type        = string
+  default     = "v1.0.0"
+}
+
+variable "domain_name" {
+  description = "Domain name for SSL certificate"
+  type        = string
+  default     = "flow.buildworkforce.ai"
+}

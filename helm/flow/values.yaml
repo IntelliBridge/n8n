@@ -1,0 +1,69 @@
+# Default values for flow.
+replicaCount: 1
+
+image:
+  registry: 132880019009.dkr.ecr.us-east-1.amazonaws.com
+  repository: flow
+  tag: v1.0.0
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+  port: 5678
+
+ingress:
+  enabled: true
+  className: alb
+  annotations:
+    kubernetes.io/ingress.class: alb
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    alb.ingress.kubernetes.io/target-type: ip
+    alb.ingress.kubernetes.io/ssl-redirect: "443"
+    alb.ingress.kubernetes.io/listen-ports: '[{"HTTP": 80}, {"HTTPS":443}]'
+    alb.ingress.kubernetes.io/healthcheck-path: /healthz
+  hosts:
+    - host: flow.buildworkforce.ai
+      paths:
+        - path: /
+          pathType: Prefix
+  certificateArn: ""  # Should be provided via values override
+
+resources: {}
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Environment variables
+env:
+  # Non-sensitive environment variables
+  N8N_HOST: flow.buildworkforce.ai
+  N8N_PORT: "5678"
+  N8N_PROTOCOL: https
+  WEBHOOK_URL: https://flow.buildworkforce.ai/
+  N8N_METRICS: "true"
+  QUEUE_BULL_REDIS_HOST: redis-service.redis
+  QUEUE_BULL_REDIS_PORT: "6379"
+  DB_TYPE: postgresdb
+  DB_POSTGRESDB_HOST: flow-cluster-postgresql
+  DB_POSTGRESDB_PORT: "5432"
+  DB_POSTGRESDB_DATABASE: n8n
+  DB_POSTGRESDB_USER: n8n
+
+# Secrets (should be provided via external secret management)
+secrets:
+  N8N_ENCRYPTION_KEY: "REPLACE_WITH_ACTUAL_SECRET"
+  OPENSEARCH_HOST: "REPLACE_WITH_ACTUAL_SECRET"
+  DB_POSTGRESDB_PASSWORD: "REPLACE_WITH_ACTUAL_SECRET"
+
+# Persistent Volume Claim
+persistence:
+  enabled: true
+  accessMode: ReadWriteOnce
+  size: 10Gi
+  storageClass: gp2
