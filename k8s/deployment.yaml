@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
       - name: flow
-        image: 132880019009.dkr.ecr.us-east-1.amazonaws.com/flow:latest
+        image: 132880019009.dkr.ecr.us-east-1.amazonaws.com/flow:v1.0.0
         ports:
         - containerPort: 5678
           name: http

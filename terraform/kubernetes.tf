@@ -249,9 +249,9 @@ resource "kubernetes_secret" "flow_secrets" {
   type = "Opaque"
 
   data = {
-    N8N_ENCRYPTION_KEY    = "NmwxbwHRTVHUhxC4u8YQ0r6UUKzG4VOx"
-    OPENSEARCH_HOST       = "https://torqdata:CbEA1twubPUYAaaGde2C!@search-torqdata-datasets-ygg4qepiu7rkr4ry4hxhxzbqjy.aos.us-east-1.on.aws"
-    DB_POSTGRESDB_PASSWORD = "C]e5H.bz|NGyd<IJMMaEaArI1V$j"
+    N8N_ENCRYPTION_KEY    = var.n8n_encryption_key
+    OPENSEARCH_HOST       = var.opensearch_host
+    DB_POSTGRESDB_PASSWORD = var.db_password
   }
 }
 
@@ -324,7 +324,7 @@ resource "kubernetes_deployment" "flow" {
 
       spec {
         container {
-          image = "${var.ecr_registry}/flow:latest"
+          image = "${var.ecr_registry}/flow:${var.image_tag}"
           name  = "flow"
 
           port {
@@ -436,7 +436,7 @@ resource "kubernetes_ingress_v1" "flow_ingress" {
       "alb.ingress.kubernetes.io/scheme"               = "internet-facing"
       "alb.ingress.kubernetes.io/target-type"          = "ip"
       "alb.ingress.kubernetes.io/ssl-redirect"         = "443"
-      "alb.ingress.kubernetes.io/certificate-arn"      = var.certificate_arn
+      "alb.ingress.kubernetes.io/certificate-arn"      = aws_acm_certificate.flow_cert.arn
       "alb.ingress.kubernetes.io/listen-ports"         = "[{\"HTTP\": 80}, {\"HTTPS\":443}]"
       "alb.ingress.kubernetes.io/healthcheck-path"     = "/healthz"
     }
