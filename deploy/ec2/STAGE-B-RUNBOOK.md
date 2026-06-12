@@ -27,8 +27,8 @@ creds unless a step says "on the EC2 (SSM)". `$` lines are shell; copy in order.
 | Temp EC2 subnet | `subnet-0acaaf8c82ff338a4` (us-east-1d, same as prod EC2 — has ECR egress) |
 | AMI (AL2023 x86_64) | `ami-0152204c1a187337c` (re-fetch latest at run time, see below) |
 | ECR repo | `132880019009.dkr.ecr.us-east-1.amazonaws.com/flow` |
-| Encryption key | Secrets Manager `flow/n8n-encryption-key` |
-| DB password | Secrets Manager `flow/n8n-prod-db-password` (store it first if not done) |
+| Encryption key | Secrets Manager `flow/n8n-encryption-key` (plain string) |
+| DB credential | RDS-**managed** master secret `rds!db-4bf41722-252e-46ab-89fc-72ac72f7ffd8` — **JSON** `{"username","password",...}`, encrypted with KMS key `6b7b64a9-de91-4a27-bba5-2dc6380160e6`. Master user **is** `workforce` (same as the app), so this one secret covers both the app connection and the safety SQL. |
 | DB user / db | `workforce` / `flowdb` |
 | Image tag to test | `flow:2.25.7-f2134a29` (the flow-2.x HEAD at writing) |
 | Community nodes to verify | `n8n-nodes-torqdata@0.1.67`, `n8n-nodes-generate-report@0.1.0` |
@@ -79,8 +79,9 @@ STAGEB_DB=$(aws rds describe-db-instances --db-instance-identifier flowdb-stageb
 echo "restored DB: $STAGEB_DB"
 ```
 
-The restored instance keeps the **same master password as prod** (it's a snapshot), so
-`flow/n8n-prod-db-password` is the right credential.
+The restored instance keeps the **same master credential as prod** (it's a snapshot), so the
+managed secret `rds!db-4bf41722-...` is the right credential. It stores JSON, so every fetch
+below extracts `.password` with python3 (present on AL2023; `jq` is not).
 
 ---
 
@@ -97,9 +98,15 @@ aws iam create-role --role-name flow-stageb-ec2 --assume-role-policy-document fi
 aws iam attach-role-policy --role-name flow-stageb-ec2 --policy-arn arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
 aws iam attach-role-policy --role-name flow-stageb-ec2 --policy-arn arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
 cat > /tmp/sm-read.json <<'JSON'
-{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":"secretsmanager:GetSecretValue","Resource":["arn:aws:secretsmanager:us-east-1:132880019009:secret:flow/n8n-encryption-key*","arn:aws:secretsmanager:us-east-1:132880019009:secret:flow/n8n-prod-db-password*"]}]}
+{"Version":"2012-10-17","Statement":[
+  {"Effect":"Allow","Action":"secretsmanager:GetSecretValue","Resource":[
+    "arn:aws:secretsmanager:us-east-1:132880019009:secret:flow/n8n-encryption-key*",
+    "arn:aws:secretsmanager:us-east-1:132880019009:secret:rds!db-4bf41722-252e-46ab-89fc-72ac72f7ffd8*"]},
+  {"Effect":"Allow","Action":"kms:Decrypt","Resource":"arn:aws:kms:us-east-1:132880019009:key/6b7b64a9-de91-4a27-bba5-2dc6380160e6"}
+]}
 JSON
 aws iam put-role-policy --role-name flow-stageb-ec2 --policy-name sm-read --policy-document file:///tmp/sm-read.json
+# kms:Decrypt is required because the RDS-managed secret is encrypted with that CMK.
 aws iam create-instance-profile --instance-profile-name flow-stageb-ec2
 aws iam add-role-to-instance-profile --instance-profile-name flow-stageb-ec2 --role-name flow-stageb-ec2
 sleep 10   # let the instance profile propagate
@@ -141,6 +148,12 @@ ssm() { # ssm "<shell>"
 }
 ```
 
+> **Escaping tip.** The `send-command` JSON arrays below (especially the `.env` heredoc and
+> the `psql` blocks) are escape-heavy. If a command misbehaves, drop into an interactive
+> shell instead — `aws ssm start-session --target "$EC2_ID"` then `sudo su - ec2-user` — and
+> paste the *inner* command verbatim with no `\"` escaping. Same effect, far less fiddly.
+> The password never leaves the box either way.
+
 ---
 
 ## 5. Provision the box: docker, compose file, env
@@ -163,7 +176,7 @@ in a secret first and read it here; otherwise the torqdata embedder test in §8 
 auth (acceptable — note it and move on).
 
 ```bash
-ssm "\"cd /opt/flow\",\"KEY=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id flow/n8n-encryption-key --query SecretString --output text)\",\"DBPW=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id flow/n8n-prod-db-password --query SecretString --output text)\",\"cat > /opt/flow/.env <<EOF
+ssm "\"cd /opt/flow\",\"KEY=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id flow/n8n-encryption-key --query SecretString --output text)\",\"DBPW=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id 'rds!db-4bf41722-252e-46ab-89fc-72ac72f7ffd8' --query SecretString --output text | python3 -c 'import json,sys;print(json.load(sys.stdin)[\\\"password\\\"])')\",\"cat > /opt/flow/.env <<EOF
 ECR_REGISTRY=$ECR
 FLOW_IMAGE_TAG=2.25.7-$SHA
 N8N_VERSION=2.25.7
@@ -188,7 +201,8 @@ Run this against the **restored** DB and confirm `0` active before anything boot
 the R10 mitigation; do not skip, do not reorder.
 
 ```bash
-ssm "\"export PGPASSWORD=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id flow/n8n-prod-db-password --query SecretString --output text)\",\"psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -c 'UPDATE workflow_entity SET active = false;'\",\"psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -tAc 'SELECT count(*) AS still_active FROM workflow_entity WHERE active;'\""
+# reuse the password already fetched into /opt/flow/.env (§5) — no re-fetch
+ssm "\"cd /opt/flow\",\". ./.env\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -c 'UPDATE workflow_entity SET active = false;'\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -tAc 'SELECT count(*) AS still_active FROM workflow_entity WHERE active;'\""
 ```
 
 **Expected last line: `0`. If it is not 0, STOP — do not boot n8n.**
@@ -217,7 +231,7 @@ length), any errors. With ~31 executions this should be well under a couple of m
 
 ```bash
 # counts unchanged vs the snapshot
-ssm "\"export PGPASSWORD=\$(aws secretsmanager get-secret-value --region us-east-1 --secret-id flow/n8n-prod-db-password --query SecretString --output text)\",\"psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -tAc \\\"SELECT (SELECT count(*) FROM workflow_entity) wf, (SELECT count(*) FROM credentials_entity) creds, (SELECT count(*) FROM execution_entity) execs, (SELECT count(*) FROM installed_packages) pkgs\\\"\""
+ssm "\"cd /opt/flow\",\". ./.env\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require' -tAc \\\"SELECT (SELECT count(*) FROM workflow_entity) wf, (SELECT count(*) FROM credentials_entity) creds, (SELECT count(*) FROM execution_entity) execs, (SELECT count(*) FROM installed_packages) pkgs\\\"\""
 ```
 
 - [ ] **Workflow / credential / execution counts** match the pre-migration snapshot (≈105 / N / ≈31).
