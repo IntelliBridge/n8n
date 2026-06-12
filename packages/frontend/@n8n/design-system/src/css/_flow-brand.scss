@@ -1,0 +1,78 @@
+/**
+ * Flow (Workforce) brand overrides.
+ *
+ * The whole color rebrand lives in this one file, emitted after the upstream
+ * token sheets so the cascade wins at equal specificity. Upstream files are
+ * not modified (except the one-line include in index.scss) so upstream syncs
+ * rebase cleanly.
+ *
+ * Brand spec carried over from the 1.90 fork (legacy/1.90-master):
+ *   primary yellow #ffd800, dark surfaces #131b22 / #25323f,
+ *   dark text on primary buttons rgb(32,32,32),
+ *   disabled buttons #ccc / #3d4551.
+ */
+
+@mixin flow-palette {
+	/* Workforce yellow ramp replaces the n8n orange brand scale (anchor #ffd800 at 500).
+	 * Everything upstream points at the brand through this scale, so redefining it
+	 * rebrands buttons, accents, hovers, and focus states in both themes. */
+	--color--orange-50: oklch(98.88% 0.0225 98.63); /* #fffceb */
+	--color--orange-100: oklch(97.59% 0.0448 97.54); /* #fff8d6 */
+	--color--orange-150: oklch(97.59% 0.0448 97.54); /* #fff8d6 */
+	--color--orange-200: oklch(95.27% 0.0929 98.63); /* #fff1a8 */
+	--color--orange-250: oklch(95.27% 0.0929 98.63); /* #fff1a8 */
+	--color--orange-300: oklch(93.46% 0.1296 98.95); /* #ffeb80 */
+	--color--orange-400: oklch(91.15% 0.1636 97.93); /* #ffe24d */
+	--color--orange-500: oklch(88.88% 0.1827 95.76); /* #ffd800 */
+	--color--orange-600: oklch(82.28% 0.1692 95.94); /* #e6c300 */
+	--color--orange-700: oklch(71.67% 0.1475 96.16); /* #bfa200 */
+	--color--orange-800: oklch(57.18% 0.1178 96.74); /* #8c7700 */
+	--color--orange-900: oklch(42.52% 0.0877 97.23); /* #5c4e00 */
+	--color--orange-950: oklch(27.23% 0.0564 98.92); /* #2e2700 */
+	--color--orange-alpha-100: oklch(88.88% 0.1827 95.76 / 0.1);
+	--color--orange-alpha-150: oklch(88.88% 0.1827 95.76 / 0.15);
+	--color--orange-alpha-200: oklch(88.88% 0.1827 95.76 / 0.2);
+	--color--orange-alpha-300: oklch(88.88% 0.1827 95.76 / 0.3);
+	--color--orange-alpha-400: oklch(88.88% 0.1827 95.76 / 0.4);
+	--color--orange-alpha-500: oklch(88.88% 0.1827 95.76 / 0.5);
+	--color--orange-alpha-600: oklch(88.88% 0.1827 95.76 / 0.6);
+	--color--orange-alpha-700: oklch(88.88% 0.1827 95.76 / 0.7);
+	--color--orange-alpha-800: oklch(88.88% 0.1827 95.76 / 0.8);
+	--color--orange-alpha-900: oklch(88.88% 0.1827 95.76 / 0.9);
+	--color--orange-alpha-950: oklch(88.88% 0.1827 95.76 / 0.95);
+
+	/* Yellow buttons need dark text (upstream uses white on orange) */
+	--button--color--text--primary: rgb(32, 32, 32);
+	--button--color--text--primary--disabled: #3d4551;
+	--button--border-color--primary--disabled: #ccc;
+	--button--color--background--primary--disabled: #ccc;
+}
+
+@mixin flow-dark {
+	/* Workforce dark blue-gray surfaces (1.90 fork: background-light / -xlight) */
+	--background--surface: oklch(21.75% 0.0182 245.18); /* #131b22 */
+	--background--subtle: oklch(31.12% 0.0293 248.79); /* #25323f */
+
+	/* Old-name passthroughs still honored by the legacy token layer */
+	--color-background-light: rgb(19, 27, 34);
+	--color-background-xlight: rgb(37, 50, 63);
+
+	/* Disabled buttons per Workforce accessibility tweak */
+	--button--color--text--primary--disabled: #ccc;
+	--button--border-color--primary--disabled: #3d4551;
+	--button--color--background--primary--disabled: #3d4551;
+}
+
+:root {
+	@include flow-palette;
+}
+
+body[data-theme='dark'] {
+	@include flow-dark;
+}
+
+@media (prefers-color-scheme: dark) {
+	body:not([data-theme]) {
+		@include flow-dark;
+	}
+}

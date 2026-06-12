@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { useFavicon } from '@vueuse/core';
-import { computed, onMounted, useCssModule, useTemplateRef } from 'vue';
+import { computed, useCssModule } from 'vue';
 
 import LogoIcon from './logo-icon.svg';
 import LogoText from './logo-text.svg';
@@ -19,7 +18,10 @@ const props = defineProps<
 	}
 >();
 
-const { size, releaseChannel } = props;
+// Flow brand: releaseChannel stays in the props contract for callers, but the
+// Workforce mark keeps its intrinsic colors on every channel and the favicon
+// stays the static /favicon.ico (upstream recolored the logo + favicon here).
+const { size } = props;
 
 const showLogoText = computed(() => {
 	if (size === 'large') return true;
@@ -38,27 +40,11 @@ const containerClasses = computed(() => {
 	];
 });
 
-const svg = useTemplateRef<{ $el: Element }>('logo');
-onMounted(() => {
-	if (!releaseChannel || releaseChannel === 'stable' || !('createObjectURL' in URL)) {
-		return;
-	}
-
-	const logoEl = svg.value!.$el;
-
-	// Change the logo fill color inline, so that favicon can also use it
-	const logoColor = releaseChannel === 'dev' ? '#838383' : '#E9984B';
-	logoEl.querySelector('path')?.setAttribute('fill', logoColor);
-
-	// Reuse the SVG as favicon
-	const blob = new Blob([logoEl.outerHTML], { type: 'image/svg+xml' });
-	useFavicon(URL.createObjectURL(blob));
-});
 </script>
 
 <template>
 	<div :class="containerClasses" data-test-id="n8n-logo">
-		<LogoIcon ref="logo" :class="$style.logo" />
+		<LogoIcon :class="$style.logo" />
 		<LogoText v-if="showLogoText" :class="$style.logoText" />
 		<slot />
 	</div>
@@ -73,9 +59,7 @@ onMounted(() => {
 
 .logoText {
 	margin-left: var(--spacing--5xs);
-	path {
-		fill: var(--color--text--shade-1);
-	}
+	width: 4rem;
 }
 
 .large {
