@@ -48,10 +48,14 @@ jobs:
 
       - name: Build image
         run: |
+          # Prod EC2 is x86_64 — pin the platform so a non-amd64 builder can't
+          # produce an image that fails with "exec format error" on the host.
           docker buildx build \
+            --platform linux/amd64 \
             --build-arg N8N_VERSION=${{ steps.meta.outputs.n8n_version }} \
             --build-arg N8N_RELEASE_TYPE=stable \
             -t $ECR_REGISTRY/$ECR_REPO:${{ steps.meta.outputs.image_tag }} \
+            --load \
             -f docker/images/n8n/Dockerfile compiled
 
       - name: Trivy scan

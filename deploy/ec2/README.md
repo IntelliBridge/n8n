@@ -23,9 +23,13 @@ no longer exists upstream):
 
 ```bash
 pnpm install --frozen-lockfile
-pnpm build:docker   # compiles and builds docker/images/n8n/Dockerfile against ./compiled
-# tag scheme: flow:<n8n-version>-<git-sha>, e.g.
-docker tag n8nio/n8n:local 132880019009.dkr.ecr.us-east-1.amazonaws.com/flow:2.25.7-$(git rev-parse --short HEAD)
+pnpm build:deploy   # compiles to ./compiled
+# Prod EC2 is x86_64 — ALWAYS build for linux/amd64 (a build on an Apple Silicon
+# Mac defaults to arm64 and fails on the host with "exec /sbin/tini: exec format error").
+docker buildx build --platform linux/amd64 \
+  --build-arg N8N_VERSION=2.25.7 --build-arg N8N_RELEASE_TYPE=stable --load \
+  -t 132880019009.dkr.ecr.us-east-1.amazonaws.com/flow:2.25.7-$(git rev-parse --short HEAD) \
+  -f docker/images/n8n/Dockerfile .
 ```
 
 Pass `N8N_RELEASE_TYPE=stable` so the instance reports `releaseChannel: stable`

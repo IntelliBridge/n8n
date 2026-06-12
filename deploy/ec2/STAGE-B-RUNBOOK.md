@@ -235,9 +235,18 @@ ssm "\"cd /opt/flow\",\". ./.env\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'h
 ```
 
 - [ ] **Workflow / credential / execution counts** match the pre-migration snapshot (≈105 / N / ≈31).
-- [ ] **Credentials decrypt** — log in to the editor (port-forward via SSM, below) and open
-      3–4 credentials; they must render, not error. **A decrypt failure = wrong encryption
-      key = hard stop** (and a hard rollback trigger at real cutover).
+- [ ] **Credentials decrypt — at PARITY WITH PROD, not absolutely.** Use prod's real key,
+      which is the **config-file key** (`~/.n8n/config` → `encryptionKey`), NOT the
+      `N8N_ENCRYPTION_KEY` env var (a red herring; n8n loads the config file). Stored in
+      Secrets Manager `flow/n8n-encryption-key` (len=32, sha=3a3e54c92fd6 as of 2026-06-12).
+      **Known pre-existing condition (verified 2026-06-12):** prod itself cannot decrypt
+      *some* of its credentials — `n8n export:credentials --all --decrypted` fails on prod
+      with the same key, so those creds were encrypted with a lost key (stale re-key / import).
+      The migration preserves this exactly: creds that work on prod work post-migration; the
+      already-broken ones stay broken. So the gate is **"the credentials used by the top-N
+      active workflows decrypt"**, checked by opening them in the editor — NOT a clean
+      `--all` export. A *new* decrypt failure on a credential that works on prod = hard stop
+      (wrong key). The pre-existing broken creds are a separate prod-hygiene task.
 - [ ] **Publish/active mapping** — note what happened to the 21 previously-active workflows
       (upstream doesn't document the active→published mapping; write down what you observe —
       it feeds the Phase 7 comms).
