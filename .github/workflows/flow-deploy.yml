@@ -1,0 +1,112 @@
+name: Flow build & deploy (EC2)
+
+# Replaces the old EKS deploy pipeline from the 1.90 fork, which targeted a
+# cluster that never existed. Deployment reality: docker-compose on EC2
+# i-038a90bc1fc8c0a79 via SSM Run Command. See deploy/ec2/README.md.
+
+on:
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: 'Deploy to prod EC2 after build'
+        type: boolean
+        default: false
+
+env:
+  AWS_REGION: us-east-1
+  ECR_REGISTRY: 132880019009.dkr.ecr.us-east-1.amazonaws.com
+  ECR_REPO: flow
+  INSTANCE_ID: i-038a90bc1fc8c0a79
+  COMPOSE_DIR: /opt/flow
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.meta.outputs.image_tag }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.22.0
+          cache: pnpm
+
+      - name: Resolve image tag (n8n version + git sha)
+        id: meta
+        run: |
+          N8N_VERSION=$(node -p "require('./package.json').version")
+          echo "image_tag=${N8N_VERSION}-$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "n8n_version=${N8N_VERSION}" >> "$GITHUB_OUTPUT"
+
+      - name: Install & compile
+        run: |
+          pnpm install --frozen-lockfile
+          pnpm build:deploy
+
+      - name: Build image
+        run: |
+          docker buildx build \
+            --build-arg N8N_VERSION=${{ steps.meta.outputs.n8n_version }} \
+            --build-arg N8N_RELEASE_TYPE=stable \
+            -t $ECR_REGISTRY/$ECR_REPO:${{ steps.meta.outputs.image_tag }} \
+            -f docker/images/n8n/Dockerfile compiled
+
+      - name: Trivy scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.ECR_REGISTRY }}/${{ env.ECR_REPO }}:${{ steps.meta.outputs.image_tag }}
+          severity: CRITICAL,HIGH
+          exit-code: '1'
+          ignore-unfixed: true
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Push to ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY
+          docker push $ECR_REGISTRY/$ECR_REPO:${{ steps.meta.outputs.image_tag }}
+          docker tag $ECR_REGISTRY/$ECR_REPO:${{ steps.meta.outputs.image_tag }} $ECR_REGISTRY/$ECR_REPO:stable
+          docker push $ECR_REGISTRY/$ECR_REPO:stable
+
+  deploy:
+    needs: build
+    if: ${{ inputs.deploy }}
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy via SSM (compose pull && up)
+        run: |
+          set -euo pipefail
+          CMD_ID=$(aws ssm send-command \
+            --instance-ids "$INSTANCE_ID" \
+            --document-name AWS-RunShellScript \
+            --comment "flow deploy ${{ needs.build.outputs.image_tag }}" \
+            --parameters "commands=[\"cd $COMPOSE_DIR\",\"sed -i 's/^FLOW_IMAGE_TAG=.*/FLOW_IMAGE_TAG=${{ needs.build.outputs.image_tag }}/' .env\",\"aws ecr get-login-password --region $AWS_REGION | docker login --username AWS --password-stdin $ECR_REGISTRY\",\"docker compose pull\",\"docker compose up -d\"]" \
+            --query 'Command.CommandId' --output text)
+          for i in $(seq 1 60); do
+            STATUS=$(aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" --query Status --output text)
+            [ "$STATUS" = "Success" ] && exit 0
+            { [ "$STATUS" = "Failed" ] || [ "$STATUS" = "TimedOut" ] || [ "$STATUS" = "Cancelled" ]; } && { aws ssm get-command-invocation --command-id "$CMD_ID" --instance-id "$INSTANCE_ID" --query StandardErrorContent --output text; exit 1; }
+            sleep 10
+          done
+          echo "Timed out waiting for SSM command"; exit 1
+
+      - name: Verify health
+        run: |
+          sleep 20
+          curl -fsS --max-time 10 https://flow.buildworkforce.ai/healthz
