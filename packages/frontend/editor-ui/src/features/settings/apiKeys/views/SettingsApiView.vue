@@ -143,7 +143,7 @@ function onEdit(id: string) {
 					<template #apiAction>
 						<a
 							data-test-id="api-docs-link"
-							href="https://docs.n8n.io/api"
+							href="https://docs.flow.io/api"
 							target="_blank"
 							v-text="i18n.baseText('settings.api.view.info.api')"
 						/>
@@ -151,7 +151,7 @@ function onEdit(id: string) {
 					<template #webhookAction>
 						<a
 							data-test-id="webhook-docs-link"
-							href="https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/"
+							href="https://docs.flow.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/"
 							target="_blank"
 							v-text="i18n.baseText('settings.api.view.info.webhook')"
 						/>

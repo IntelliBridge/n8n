@@ -1,6 +1,6 @@
 import { type INodeTypeDescription, isCommunityPackageName } from 'n8n-workflow';
 import { computed, toValue, type MaybeRefOrGetter } from 'vue';
-import { BUILTIN_NODES_DOCS_URL, NPM_PACKAGE_DOCS_BASE_URL } from '../constants';
+import { NPM_PACKAGE_DOCS_BASE_URL } from '../constants';
 
 export const useNodeDocsUrl = ({
 	nodeType: nodeTypeRef,
@@ -25,24 +25,16 @@ export const useNodeDocsUrl = ({
 			return nodeType.documentationUrl;
 		}
 
-		const utmParams = new URLSearchParams({
-			utm_source: 'n8n_app',
-			utm_medium: 'node_settings_modal-credential_link',
-			utm_campaign: nodeType.name,
-		});
-
-		// Built-in node documentation available via its codex entry
-		const primaryDocUrl = nodeType.codex?.resources?.primaryDocumentation?.[0]?.url;
-		if (primaryDocUrl) {
-			return `${primaryDocUrl}?${utmParams.toString()}`;
-		}
-
 		if (isCommunityNode.value) {
 			return `${NPM_PACKAGE_DOCS_BASE_URL}${packageName.value}`;
 		}
 
-		// Fallback to the root of the node documentation
-		return `${BUILTIN_NODES_DOCS_URL}?${utmParams.toString()}`;
+		// Flow: built-in nodes link to upstream's docs site (codex
+		// primaryDocumentation / BUILTIN_NODES_DOCS_URL). Suppress those links
+		// centrally instead of stripping the URLs from every node definition,
+		// which is what the 1.90 fork did across 88 files. Render sites hide
+		// the link when docsUrl is empty.
+		return '';
 	});
 
 	return { docsUrl };
