@@ -323,7 +323,7 @@ describe('InsightsDashboard', () => {
 					props: { insightType: INSIGHT_TYPES.TOTAL },
 				}),
 			).not.toThrow();
-			expect(document.title).toBe('Insights - n8n');
+			expect(document.title).toBe('Insights - Flow');
 			expect(screen.getByRole('heading', { level: 2, name: 'Insights' })).toBeInTheDocument();
 		});
 

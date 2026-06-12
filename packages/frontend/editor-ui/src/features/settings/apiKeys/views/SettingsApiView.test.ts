@@ -21,19 +21,19 @@ const rootStore = mockedStore(useRootStore);
 const assertHintsAreShown = ({ isSwaggerUIEnabled }: { isSwaggerUIEnabled: boolean }) => {
 	const apiDocsLink = screen.getByTestId('api-docs-link');
 	expect(apiDocsLink).toBeInTheDocument();
-	expect(apiDocsLink).toHaveAttribute('href', 'https://docs.n8n.io/api');
+	expect(apiDocsLink).toHaveAttribute('href', 'https://docs.flow.io/api');
 	expect(apiDocsLink).toHaveAttribute('target', '_blank');
 
 	const webhookDocsLink = screen.getByTestId('webhook-docs-link');
 	expect(webhookDocsLink).toBeInTheDocument();
 	expect(webhookDocsLink).toHaveAttribute(
 		'href',
-		'https://docs.n8n.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/',
+		'https://docs.flow.io/integrations/builtin/core-nodes/n8n-nodes-base.webhook/',
 	);
 	expect(webhookDocsLink).toHaveAttribute('target', '_blank');
 
 	expect(
-		screen.getByText('Use your API Key to control n8n programmatically using the', {
+		screen.getByText('Use your API Key to control Flow programmatically using the', {
 			exact: false,
 		}),
 	).toBeInTheDocument();
@@ -69,10 +69,10 @@ describe('SettingsApiView', () => {
 		expect(screen.getByText('Upgrade to use API')).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'To prevent abuse, we limit API access to your workspace during your trial. If this is hindering your evaluation of n8n, please contact',
+				'To prevent abuse, we limit API access to your workspace during your trial. If this is hindering your evaluation of Flow, please contact',
 			),
 		).toBeInTheDocument();
-		expect(screen.getByText('support@n8n.io')).toBeInTheDocument();
+		expect(screen.getByText('support@flow.io')).toBeInTheDocument();
 
 		expect(screen.getByText('Upgrade plan')).toBeInTheDocument();
 	});
@@ -85,8 +85,10 @@ describe('SettingsApiView', () => {
 		renderComponent(SettingsApiView);
 
 		expect(screen.getByText('Create an API Key')).toBeInTheDocument();
-		expect(screen.getByText('Control n8n programmatically using the')).toBeInTheDocument();
-		expect(screen.getByText('n8n API')).toBeInTheDocument();
+		// Flow: the fork's i18n strips the docs link, so this renders as one text node
+		expect(
+			screen.getByText('Control Flow programmatically using the Flow API'),
+		).toBeInTheDocument();
 	});
 
 	it('if user public api enabled, swagger enabled, and there are API Keys in account, they should be rendered', async () => {
@@ -293,7 +295,7 @@ describe('SettingsApiView', () => {
 		expect(screen.getByText('Delete this API Key?')).toBeInTheDocument();
 		expect(
 			screen.getByText(
-				'Any application using this API Key will no longer have access to n8n. This operation cannot be undone.',
+				'Any application using this API Key will no longer have access to Flow. This operation cannot be undone.',
 			),
 		).toBeInTheDocument();
 		expect(screen.getByText('Cancel')).toBeInTheDocument();

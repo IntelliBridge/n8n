@@ -7,7 +7,6 @@ import { useUsersStore } from '@/features/settings/users/users.store';
 import { createComponentRenderer } from '@/__tests__/render';
 import { setupServer } from '@/__tests__/server';
 import { ROLE } from '@n8n/api-types';
-import { useUIStore } from '@/app/stores/ui.store';
 import { useCloudPlanStore } from '@/app/stores/cloudPlan.store';
 import { useSSOStore } from '@/features/settings/sso/sso.store';
 import { UserManagementAuthenticationMethod } from '@/Interface';
@@ -16,7 +15,6 @@ let pinia: ReturnType<typeof createPinia>;
 let settingsStore: ReturnType<typeof useSettingsStore>;
 let ssoStore: ReturnType<typeof useSSOStore>;
 let usersStore: ReturnType<typeof useUsersStore>;
-let uiStore: ReturnType<typeof useUIStore>;
 let cloudPlanStore: ReturnType<typeof useCloudPlanStore>;
 let server: ReturnType<typeof setupServer>;
 
@@ -46,7 +44,6 @@ describe('SettingsPersonalView', () => {
 		settingsStore = useSettingsStore(pinia);
 		ssoStore = useSSOStore(pinia);
 		usersStore = useUsersStore(pinia);
-		uiStore = useUIStore(pinia);
 		cloudPlanStore = useCloudPlanStore(pinia);
 
 		usersStore.usersById[currentUser.id] = currentUser;
@@ -76,56 +73,20 @@ describe('SettingsPersonalView', () => {
 		expect(getByTestId('change-password-link')).toBeInTheDocument();
 	});
 
-	describe('when changing theme', () => {
-		it('should disable save button when theme has not been changed', async () => {
+	// Flow ships dark-only: the theme picker is removed from this view
+	describe('theme picker (removed)', () => {
+		it('should disable save button when nothing has been changed', async () => {
 			const { getByTestId } = renderComponent({ pinia });
 			await waitAllPromises();
 
 			expect(getByTestId('save-settings-button')).toBeDisabled();
 		});
 
-		it('should enable save button when theme is changed', async () => {
-			const { getByTestId, getByPlaceholderText, findByText } = renderComponent({ pinia });
+		it('should not render a theme select', async () => {
+			const { queryByTestId } = renderComponent({ pinia });
 			await waitAllPromises();
 
-			getByPlaceholderText('Select').click();
-			const darkThemeOption = await findByText('Dark theme');
-			darkThemeOption.click();
-
-			await waitAllPromises();
-			expect(getByTestId('save-settings-button')).toBeEnabled();
-		});
-
-		it('should not update theme after changing the selected theme', async () => {
-			const { getByPlaceholderText, findByText } = renderComponent({ pinia });
-			await waitAllPromises();
-
-			getByPlaceholderText('Select').click();
-			const darkThemeOption = await findByText('Dark theme');
-			darkThemeOption.click();
-
-			await waitAllPromises();
-			expect(uiStore.theme).toBe('system');
-		});
-
-		it('should commit the theme change after clicking save', async () => {
-			vi.spyOn(usersStore, 'updateUser').mockReturnValue(
-				Promise.resolve({ id: '123', isPending: false }),
-			);
-			const { getByPlaceholderText, findByText, getByTestId } = renderComponent({ pinia });
-			await waitAllPromises();
-
-			getByPlaceholderText('Select').click();
-			const darkThemeOption = await findByText('Dark theme');
-			darkThemeOption.click();
-
-			await waitAllPromises();
-
-			getByTestId('save-settings-button').click();
-
-			await waitAllPromises();
-
-			expect(uiStore.theme).toBe('dark');
+			expect(queryByTestId('theme-select')).not.toBeInTheDocument();
 		});
 	});
 

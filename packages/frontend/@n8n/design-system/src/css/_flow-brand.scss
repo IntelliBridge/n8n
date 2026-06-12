@@ -54,8 +54,10 @@
 	--background--subtle: oklch(31.12% 0.0293 248.79); /* #25323f */
 
 	/* Old-name passthroughs still honored by the legacy token layer */
+	/* stylelint-disable @n8n/css-var-naming */
 	--color-background-light: rgb(19, 27, 34);
 	--color-background-xlight: rgb(37, 50, 63);
+	/* stylelint-enable @n8n/css-var-naming */
 
 	/* Disabled buttons per Workforce accessibility tweak */
 	--button--color--text--primary--disabled: #ccc;

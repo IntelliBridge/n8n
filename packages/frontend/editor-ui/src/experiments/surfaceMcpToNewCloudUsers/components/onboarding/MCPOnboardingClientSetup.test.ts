@@ -28,9 +28,9 @@ describe('MCPOnboardingClientSetup', () => {
 		const { container } = renderComponent();
 		const text = container.textContent ?? '';
 
-		expect(text).toContain('claude mcp add --scope user --transport http n8n');
+		expect(text).toContain('claude mcp add --scope user --transport http Flow');
 		expect(text).toContain('https://example.n8n.cloud/mcp-server/http');
-		expect(text).toContain('complete the n8n OAuth flow');
+		expect(text).toContain('complete the Flow OAuth flow');
 		expect(text).not.toContain('claude mcp list');
 	});
 
@@ -40,9 +40,9 @@ describe('MCPOnboardingClientSetup', () => {
 		});
 		const text = container.textContent ?? '';
 
-		expect(text).toContain('Show me the n8n MCP connector');
+		expect(text).toContain('Show me the Flow MCP connector');
 		expect(text).toContain("I'll paste my server URL when you tell me where it goes.");
-		expect(text).not.toContain('claude mcp add --scope user --transport http n8n');
+		expect(text).not.toContain('claude mcp add --scope user --transport http Flow');
 		expect(queryByTestId('mcp-onboarding-claude-server-url')).not.toBeInTheDocument();
 	});
 
@@ -50,10 +50,10 @@ describe('MCPOnboardingClientSetup', () => {
 		const { container } = renderComponent({ props: { client: 'codex' } });
 		const text = container.textContent ?? '';
 
-		expect(text).toContain('[mcp_servers.n8n]');
+		expect(text).toContain('[mcp_servers.Flow]');
 		expect(text).toContain('~/.codex/config.toml');
 		expect(text).toContain('https://example.n8n.cloud/mcp-server/http');
-		expect(text).toContain('complete the n8n OAuth flow');
+		expect(text).toContain('complete the Flow OAuth flow');
 	});
 
 	it('copies the prompt body and emits copy event on click', async () => {
@@ -65,7 +65,7 @@ describe('MCPOnboardingClientSetup', () => {
 		expect(mockClipboardCopy).toHaveBeenCalledTimes(1);
 		const copiedText = mockClipboardCopy.mock.calls[0][0] as string;
 		expect(copiedText).toContain('claude mcp add --scope user');
-		expect(copiedText).toContain('complete the n8n OAuth flow');
+		expect(copiedText).toContain('complete the Flow OAuth flow');
 
 		expect(emitted('copy')).toEqual([['agent-prompt']]);
 	});

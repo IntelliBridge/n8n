@@ -101,7 +101,7 @@ describe('Init', () => {
 
 			expect(showToast).toHaveBeenCalledWith(
 				expect.objectContaining({
-					title: 'Error connecting to n8n',
+					title: 'Error connecting to Flow',
 					type: 'error',
 				}),
 			);

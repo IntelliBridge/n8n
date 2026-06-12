@@ -30,7 +30,7 @@ describe('AskModeCoachmark', () => {
 			expect(getByText('Ask mode enabled')).toBeInTheDocument();
 			expect(
 				getByText(
-					'Ask questions about n8n, get help with errors, or learn about automation. Switch to Build anytime to create workflows.',
+					'Ask questions about Flow, get help with errors, or learn about automation. Switch to Build anytime to create workflows.',
 				),
 			).toBeInTheDocument();
 			expect(getByText('Got it')).toBeInTheDocument();

@@ -14,7 +14,8 @@ describe('useNodeDocsUrl', () => {
 		expect(docsUrl.value).toBe('https://example.com/docs');
 	});
 
-	it('returns codex primaryDocumentation url with UTM params', () => {
+	// Flow: built-in nodes never link to upstream's docs site
+	it('suppresses codex primaryDocumentation url for built-in nodes', () => {
 		const nodeType = mock<INodeTypeDescription>({
 			name: 'n8n-nodes-base.set',
 			documentationUrl: '',
@@ -27,9 +28,7 @@ describe('useNodeDocsUrl', () => {
 
 		const { docsUrl } = useNodeDocsUrl({ nodeType });
 
-		expect(docsUrl.value).toEqual(
-			'https://docs.n8n.io/nodes/MyNode?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.set',
-		);
+		expect(docsUrl.value).toBe('');
 	});
 
 	it('returns community docs url for community-nodes', () => {
@@ -42,16 +41,14 @@ describe('useNodeDocsUrl', () => {
 		expect(docsUrl.value).toBe(`${NPM_PACKAGE_DOCS_BASE_URL}n8n-nodes-custom`);
 	});
 
-	it('returns builtin docs root with UTM if no other match', () => {
+	it('suppresses builtin docs root fallback', () => {
 		const nodeType = mock<INodeTypeDescription>({
 			name: 'n8n-nodes-base.set',
 			documentationUrl: '',
 		});
 		const { docsUrl } = useNodeDocsUrl({ nodeType });
 
-		expect(docsUrl.value).toEqual(
-			'https://docs.n8n.io/integrations/builtin/?utm_source=n8n_app&utm_medium=node_settings_modal-credential_link&utm_campaign=n8n-nodes-base.set',
-		);
+		expect(docsUrl.value).toBe('');
 	});
 
 	it('returns empty string if documentationUrl is null', () => {

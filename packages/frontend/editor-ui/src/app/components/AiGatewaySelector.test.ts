@@ -51,7 +51,7 @@ describe('AiGatewaySelector', () => {
 			expect(screen.getByTestId('ai-gateway-selector')).toBeInTheDocument();
 			expect(screen.getByTestId('ai-gateway-selector-connect')).toBeInTheDocument();
 			expect(screen.getByTestId('ai-gateway-mode-card-own')).toBeInTheDocument();
-			expect(screen.getByText('n8n Connect')).toBeInTheDocument();
+			expect(screen.getByText('Flow Connect')).toBeInTheDocument();
 			expect(screen.getByText('My own credential')).toBeInTheDocument();
 		});
 
@@ -100,7 +100,7 @@ describe('AiGatewaySelector', () => {
 	});
 
 	describe('selection', () => {
-		it('should emit select with true when n8n Connect card is clicked while disabled', async () => {
+		it('should emit select with true when Flow Connect card is clicked while disabled', async () => {
 			const { emitted } = renderComponent({
 				props: { aiGatewayEnabled: false, readonly: false },
 			});
@@ -122,7 +122,7 @@ describe('AiGatewaySelector', () => {
 			expect(emitted('toggle')![0]).toEqual([false]);
 		});
 
-		it('should not emit when n8n Connect card is clicked while already selected', async () => {
+		it('should not emit when Flow Connect card is clicked while already selected', async () => {
 			const { emitted } = renderComponent({
 				props: { aiGatewayEnabled: true, readonly: false },
 			});

@@ -279,9 +279,9 @@ describe('WorkflowPublishModal', () => {
 
 			const warning = getByTestId('workflow-publish-ai-gateway-warning');
 			expect(warning).toHaveTextContent('The node');
-			expect(warning).toHaveTextContent('uses an n8n Connect credential');
+			expect(warning).toHaveTextContent('uses a Flow Connect credential');
 			expect(warning).toHaveTextContent(
-				'Once your n8n Connect balance is depleted, this workflow will stop working.',
+				'Once your Flow Connect balance is depleted, this workflow will stop working.',
 			);
 			expect(warning).not.toHaveTextContent('Top-up');
 		});
@@ -310,9 +310,9 @@ describe('WorkflowPublishModal', () => {
 
 			const warning = getByTestId('workflow-publish-ai-gateway-warning');
 			expect(warning).toHaveTextContent('The nodes');
-			expect(warning).toHaveTextContent('use n8n Connect credentials');
+			expect(warning).toHaveTextContent('use Flow Connect credentials');
 			expect(warning).toHaveTextContent(
-				'Once your n8n Connect balance is depleted, this workflow will stop working.',
+				'Once your Flow Connect balance is depleted, this workflow will stop working.',
 			);
 			expect(warning).not.toHaveTextContent('Top-up');
 		});

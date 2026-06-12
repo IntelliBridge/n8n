@@ -179,7 +179,7 @@ describe('MainSidebar', () => {
 			const { getByText, findByText } = renderComponent();
 
 			getByText('Help').click();
-			const aboutItem = await findByText('About n8n');
+			const aboutItem = await findByText('About Flow');
 			aboutItem.click();
 
 			expect(uiStore.openModal).toHaveBeenCalledWith(ABOUT_MODAL_KEY);

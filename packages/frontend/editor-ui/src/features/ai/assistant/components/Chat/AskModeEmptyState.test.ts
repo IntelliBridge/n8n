@@ -9,10 +9,10 @@ describe('AskModeEmptyState', () => {
 	it('renders the empty state content', () => {
 		const { getByText, container } = renderComponent();
 
-		expect(getByText('Ask n8n AI')).toBeInTheDocument();
+		expect(getByText('Ask Flow AI')).toBeInTheDocument();
 		expect(
 			getByText(
-				"Ask anything about n8n, your workflow, or how to accomplish a task. This won't use any of your AI credits.",
+				"Ask anything about Flow, your workflow, or how to accomplish a task. This won't use any of your AI credits.",
 			),
 		).toBeInTheDocument();
 
