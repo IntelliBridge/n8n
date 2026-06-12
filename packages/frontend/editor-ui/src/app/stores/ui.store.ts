@@ -92,7 +92,7 @@ import type {
 } from '@/Interface';
 import { defineStore } from 'pinia';
 import { useSettingsStore } from '@/app/stores/settings.store';
-import { applyThemeToBody, getThemeOverride, isValidTheme } from './ui.utils';
+import { applyThemeToBody } from './ui.utils';
 import { computed, ref } from 'vue';
 import type { IMenuItem } from '@n8n/design-system';
 import type { Connection } from '@vue-flow/core';
@@ -103,14 +103,12 @@ import identity from 'lodash/identity';
 import * as modalRegistry from '@/app/moduleInitializer/modalRegistry';
 import { useTelemetry } from '@/app/composables/useTelemetry';
 
-let savedTheme: ThemeOption = 'system';
+// Flow ships dark-only: ignore ?theme= and stale localStorage values, and the
+// theme picker is hidden in SettingsPersonalView.
+const savedTheme: ThemeOption = 'dark';
 
 try {
-	const value = getThemeOverride();
-	if (value !== null) {
-		savedTheme = value;
-		applyThemeToBody(value);
-	}
+	applyThemeToBody(savedTheme);
 } catch (e) {}
 
 type UiStore = ReturnType<typeof useUIStore>;
@@ -122,7 +120,7 @@ export const useUIStore = defineStore(STORES.UI, () => {
 	const theme = useLocalStorage<ThemeOption>(LOCAL_STORAGE_THEME, savedTheme, {
 		writeDefaults: false,
 		serializer: {
-			read: (value) => (isValidTheme(value) ? value : savedTheme),
+			read: () => savedTheme,
 			write: identity,
 		},
 	});

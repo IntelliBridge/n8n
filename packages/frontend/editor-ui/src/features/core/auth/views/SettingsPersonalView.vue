@@ -4,7 +4,7 @@ import { ROLE, type Role } from '@n8n/api-types';
 import { useI18n } from '@n8n/i18n';
 import { useToast } from '@/app/composables/useToast';
 import { useDocumentTitle } from '@/app/composables/useDocumentTitle';
-import type { IFormInputs, ThemeOption } from '@/Interface';
+import type { IFormInputs } from '@/Interface';
 import type { IUser } from '@n8n/rest-api-client/api/users';
 import {
 	CHANGE_PASSWORD_MODAL_KEY,
@@ -20,7 +20,6 @@ import { useCloudPlanStore } from '@/app/stores/cloudPlan.store';
 import { createFormEventBus } from '@n8n/design-system/utils';
 import type { MfaModalEvents } from '../auth.eventBus';
 import { promptMfaCodeBus } from '../auth.eventBus';
-import type { BaseTextKey } from '@n8n/i18n';
 import { useSSOStore } from '@/features/settings/sso/sso.store';
 import type { ConfirmPasswordModalEvents } from '../auth.eventBus';
 import { confirmPasswordEventBus } from '../auth.eventBus';
@@ -33,8 +32,6 @@ import {
 	N8nInputLabel,
 	N8nLink,
 	N8nNotice,
-	N8nOption,
-	N8nSelect,
 	N8nText,
 	N8nTooltip,
 } from '@n8n/design-system';
@@ -65,21 +62,8 @@ const hasAnyBasicInfoChanges = ref<boolean>(false);
 const formInputs = ref<null | IFormInputs>(null);
 const formBus = createFormEventBus();
 const readyToSubmit = ref(false);
+// Flow ships dark-only: the theme picker is removed (see ui.store.ts)
 const currentSelectedTheme = ref(useUIStore().theme);
-const themeOptions = ref<Array<{ name: ThemeOption; label: BaseTextKey }>>([
-	{
-		name: 'system',
-		label: 'settings.personal.theme.systemDefault',
-	},
-	{
-		name: 'light',
-		label: 'settings.personal.theme.light',
-	},
-	{
-		name: 'dark',
-		label: 'settings.personal.theme.dark',
-	},
-]);
 
 const uiStore = useUIStore();
 const usersStore = useUsersStore();
@@ -439,32 +423,6 @@ onBeforeUnmount(() => {
 			</div>
 		</div>
 		<div>
-			<div class="mb-s">
-				<N8nHeading size="large">{{
-					i18n.baseText('settings.personal.personalisation')
-				}}</N8nHeading>
-			</div>
-			<div>
-				<N8nInputLabel :label="i18n.baseText('settings.personal.theme')">
-					<N8nSelect
-						v-model="currentSelectedTheme"
-						:class="$style.themeSelect"
-						data-test-id="theme-select"
-						size="small"
-						filterable
-					>
-						<N8nOption
-							v-for="item in themeOptions"
-							:key="item.name"
-							:label="i18n.baseText(item.label)"
-							:value="item.name"
-						>
-						</N8nOption>
-					</N8nSelect>
-				</N8nInputLabel>
-			</div>
-		</div>
-		<div>
 			<N8nButton
 				float="right"
 				:label="i18n.baseText('settings.personal.save')"
@@ -536,9 +494,5 @@ onBeforeUnmount(() => {
 .infoText {
 	font-size: var(--font-size--2xs);
 	color: var(--color--text--tint-1);
-}
-
-.themeSelect {
-	max-width: 50%;
 }
 </style>
