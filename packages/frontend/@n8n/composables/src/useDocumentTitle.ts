@@ -1,6 +1,6 @@
 import { ref, type Ref } from 'vue';
 
-const DEFAULT_TITLE = 'n8n';
+const DEFAULT_TITLE = 'Flow';
 const DEFAULT_TAGLINE = 'Workflow Automation';
 
 export type WorkflowTitleStatus =
@@ -26,11 +26,9 @@ export interface UseDocumentTitleOptions {
 }
 
 export function useDocumentTitle(options: UseDocumentTitleOptions = {}) {
-	const { releaseChannel, windowRef } = options;
-	const suffix =
-		!releaseChannel || releaseChannel === 'stable'
-			? DEFAULT_TITLE
-			: `${DEFAULT_TITLE}[${releaseChannel.toUpperCase()}]`;
+	const { windowRef } = options;
+	// Flow: fixed brand suffix, no release-channel decoration
+	const suffix = DEFAULT_TITLE;
 
 	const currentState = ref<WorkflowTitleStatus | undefined>(undefined);
 
