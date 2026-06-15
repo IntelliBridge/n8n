@@ -207,6 +207,37 @@ ssm "\"cd /opt/flow\",\". ./.env\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'h
 
 **Expected last line: `0`. If it is not 0, STOP — do not boot n8n.**
 
+### 6.1 Drop community-node packages (decision 2026-06-15 — torqdata not used)
+
+The 2.x instance ships with **no community nodes** (`n8n-nodes-torqdata` and
+`n8n-nodes-generate-report` are both dropped — see migration progress log). Delete their
+`installed_packages` rows so 2.x doesn't attempt a reinstall on first boot. The ~6 workflows
+that reference torqdata are all **inactive** and stay inactive (they render as "unknown node
+type", which is harmless). This is hygiene, not a hard gate — Stage B booted clean with the
+rows present (reinstall silently no-ops) — but on the real cutover, run it.
+
+The PK column is camelCase `"packageName"`, so it **must be double-quoted** (unquoted
+Postgres identifiers fold to lowercase and won't match). The `installed_nodes` child rows are
+removed automatically by the FK's `ON DELETE CASCADE` — no separate delete needed. Because of
+the embedded double-quoted identifier and single-quoted literals, run this from an
+**interactive psql** session rather than fighting the SSM/JSON escaping:
+
+```bash
+# open psql on the box (reuse the password already in /opt/flow/.env):
+#   cd /opt/flow && . ./.env
+#   PGPASSWORD=$DB_POSTGRESDB_PASSWORD psql "host=$STAGEB_DB port=5432 dbname=flowdb user=workforce sslmode=require"
+
+DELETE FROM installed_packages
+ WHERE "packageName" IN ('n8n-nodes-torqdata', 'n8n-nodes-generate-report');
+
+SELECT count(*) AS pkgs_left FROM installed_packages;   -- expect 0
+SELECT count(*) AS nodes_left FROM installed_nodes;     -- expect 0 (cascaded)
+```
+
+**Expected: `pkgs_left = 0` and `nodes_left = 0`.** The 2.x boot then provisions zero
+community packages. (If this instance ever used a `DB_TABLE_PREFIX`, prefix both table names —
+prod uses none, matching the unprefixed count query in §8.)
+
 ---
 
 ## 7. Boot the stack + measure the migration
@@ -250,12 +281,11 @@ ssm "\"cd /opt/flow\",\". ./.env\",\"PGPASSWORD=\$DB_POSTGRESDB_PASSWORD psql 'h
 - [ ] **Publish/active mapping** — note what happened to the 21 previously-active workflows
       (upstream doesn't document the active→published mapping; write down what you observe —
       it feeds the Phase 7 comms).
-- [ ] **Community nodes reinstalled** — `installed_packages` still lists `n8n-nodes-torqdata`
-      and `n8n-nodes-generate-report`; confirm both load (no "unrecognized node" on open).
-      Reactivate one torqdata workflow **with test/staging credentials**, run it once.
-- [ ] **`n8n-nodes-generate-report@0.1.0` (third-party)** — load a workflow that uses it; if
-      it errors on 2.x, that's a Phase-5 finding (pin/patch/replace), not a cutover blocker
-      unless an active workflow depends on it.
+- [ ] **Community nodes dropped (decision 2026-06-15)** — after §6.1, `installed_packages` is
+      empty (`pkgs = 0` in the count query above). Both `n8n-nodes-torqdata` and
+      `n8n-nodes-generate-report` are gone by design. The ~6 (inactive) torqdata workflows
+      render as "unknown node type" — expected and harmless; confirm none of them are active.
+      No torqdata/generate-report execution test applies anymore (Phase 5 cut).
 - [ ] **Code node via runner** — reactivate (or create) a JS Code-node workflow, execute it,
       confirm it runs through the runner sidecar (proves the external-runner wiring on real data).
 
