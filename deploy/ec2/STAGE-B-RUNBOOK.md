@@ -1,3 +1,51 @@
+# PROD CUTOVER — scheduled: NOW (window opened 2026-06-15)
+
+> This runbook was first written for Stage B (dress-rehearsal on a restored snapshot, below).
+> Stage B passed, so it now **doubles as the prod cutover runbook.** This top section is the
+> **delta overlay** for the real cutover; the detailed `§`-numbered steps below are reused
+> except where this section overrides them. **Booked window ≈ 90 min; real prod downtime ≈
+> 10–15 min** (container-stop → healthz-OK + validation).
+
+**Target = the LIVE box, not a copy.** Operate on prod EC2 `i-038a90bc1fc8c0a79`
+(t3.2xlarge, ALB `torqflow-staging`, subnet `us-east-1d`) against the **real prod RDS
+`flowdb`**. There is no snapshot-restore and no temp EC2 — so **skip Stage B §2, §3, §4
+entirely** (those only existed to build a throwaway copy).
+
+### Prod step sequence (deltas from the Stage B `§`s)
+
+1. **T-0 — merge PR #6** (`flow-2.x → master`) so `master` = the deployed 2.25.7 source, then
+   **announce freeze** (no workflow edits). Image is already in ECR (`flow:2.25.7-f2134a29`),
+   so Stage B §1 is done.
+2. **Final manual RDS snapshot of `flowdb`** — `aws rds create-db-snapshot --db-instance-identifier flowdb --db-snapshot-identifier flowdb-precutover-2026-06-15`. **This is the rollback anchor; wait for `available` before stopping n8n.** (~5–10 min.)
+3. **Stop the old `flow` container** on the prod box (raw `docker stop flow` / `docker rm` — prod was started with `docker run`, not compose). **Downtime starts here.**
+4. **Put the new compose + env on the box** (Stage B §5) — `deploy/ec2/docker-compose.yml` + env. **Encryption key MUST be prod's config-file key** (`~/.n8n/config` → `encryptionKey`, sha `3a3e54c92fd6`, in Secrets Manager `flow/n8n-encryption-key`), NOT the env-var red herring. Secrets with `$` injected via host env, not `.env` (Stage B bug 2).
+5. **⚠️ OVERRIDE of Stage B §6 — do NOT run the deactivate-all SQL on prod.** That gate exists *only* because a restored snapshot in a test VPC must not fire triggers at real systems. On the real cutover the live workflows **should resume** post-migration. Skipping §6 is deliberate; do not paste it against prod.
+6. **DO run §6.1** — drop the community-node packages (torqdata + generate-report) on prod.
+7. **Boot the stack + migration** (Stage B §7) against prod RDS — ~6 s / 115 migrations measured. Then **§8 validation checklist** as the go/no-go evidence (counts vs pre-cutover, decrypt *parity* with prod, triggers fire once, Code-node via runner, ALB target healthy).
+8. **30-min clean-error soak**, then unfreeze + announce complete.
+
+### Go / no-go gates at T-0
+- [x] PR #6 mergeable (merge at step 1)
+- [ ] **Day-of CVE-2026-21858 rescan = 0** (re-run the Phase 0 scan against current prod workflows)
+- [x] amd64 image `flow:2.25.7-f2134a29` in ECR
+- [x] `flow/n8n-encryption-key` = config-file key (sha `3a3e54c92fd6`)
+- [ ] **Final snapshot `flowdb-precutover-2026-06-15` = `available`** (step 2)
+- [ ] Rollback owner on-call; **old 1.90 prod image tag/digest recorded** (needed by §9 rollback)
+- [ ] Change freeze announced
+
+### Rollback trigger (rehearsed in §9)
+Any **new** credential-decrypt failure vs prod parity, a migration error, or healthz not green
+within a few minutes → restore `flowdb-precutover-2026-06-15` (new instance or repoint) + boot
+the old 1.90 image + old env. **Rollback re-opens the CVE** → Phase 0 mitigations stay until a
+second attempt succeeds.
+
+### Execution authorization
+Driving this on prod (SSM + the prod encryption key) needs Eric's explicit go each run. Either
+**Eric runs the steps**, or **Claude drives via SSM** once Eric confirms the temp-key use and
+the freeze is announced. Nothing here fires automatically.
+
+---
+
 # Stage B — staging dress-rehearsal on a restored prod snapshot (in-VPC)
 
 Validates the full 2.25.7 stack against a **copy of prod data**, end-to-end, before the
