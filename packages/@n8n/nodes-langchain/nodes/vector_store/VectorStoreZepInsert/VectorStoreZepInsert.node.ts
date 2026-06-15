@@ -9,9 +9,7 @@ import {
 	NodeConnectionTypes,
 } from 'n8n-workflow';
 
-import type { N8nJsonLoader } from '@utils/N8nJsonLoader';
-
-import { processDocuments } from '../shared/processDocuments';
+import { processDocuments, type N8nJsonLoader } from '@n8n/ai-utilities';
 
 // This node is deprecated. Use VectorStoreZep instead.
 export class VectorStoreZepInsert implements INodeType {
@@ -32,7 +30,13 @@ export class VectorStoreZepInsert implements INodeType {
 			subcategories: {
 				AI: ['Vector Stores'],
 			},
-			resources: {},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorezep/',
+					},
+				],
+			},
 		},
 		credentials: [
 			{
@@ -57,6 +61,12 @@ export class VectorStoreZepInsert implements INodeType {
 		],
 		outputs: [NodeConnectionTypes.Main],
 		properties: [
+			{
+				displayName: 'This Zep integration is deprecated and will be removed in a future version.',
+				name: 'deprecationNotice',
+				type: 'notice',
+				default: '',
+			},
 			{
 				displayName: 'Collection Name',
 				name: 'collectionName',

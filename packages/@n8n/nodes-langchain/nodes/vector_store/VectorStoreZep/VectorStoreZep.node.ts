@@ -1,10 +1,9 @@
 import { ZepVectorStore } from '@langchain/community/vectorstores/zep';
 import { ZepCloudVectorStore } from '@langchain/community/vectorstores/zep_cloud';
-import { metadataFilterField } from '@utils/sharedFields';
 import type { IDataObject, INodeProperties } from 'n8n-workflow';
 import { NodeOperationError } from 'n8n-workflow';
 
-import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
+import { metadataFilterField, createVectorStoreNode } from '@n8n/ai-utilities';
 
 const embeddingDimensions: INodeProperties = {
 	displayName: 'Embedding Dimensions',
@@ -49,6 +48,7 @@ export class VectorStoreZep extends createVectorStoreNode<ZepVectorStore | ZepCl
 	meta: {
 		displayName: 'Zep Vector Store',
 		name: 'vectorStoreZep',
+		hidden: true,
 		description: 'Work with your data in Zep Vector Store',
 		credentials: [
 			{
@@ -57,9 +57,16 @@ export class VectorStoreZep extends createVectorStoreNode<ZepVectorStore | ZepCl
 			},
 		],
 		icon: 'file:zep.png',
-		docsUrl: '',
+		docsUrl:
+			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorezep/',
 	},
 	sharedFields: [
+		{
+			displayName: 'This Zep integration is deprecated and will be removed in a future version.',
+			name: 'deprecationNotice',
+			type: 'notice',
+			default: '',
+		},
 		{
 			displayName: 'Collection Name',
 			name: 'collectionName',

@@ -33,6 +33,22 @@
         "kind": {
             "type": "string"
         },
+        "localizations": {
+            "type": "object",
+            "properties": {
+                "es": {
+                    "type": "object",
+                    "properties": {
+                        "description": {
+                            "type": "string"
+                        },
+                        "title": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "player": {
             "type": "object",
             "properties": {
@@ -56,6 +72,9 @@
                 "defaultAudioLanguage": {
                     "type": "string"
                 },
+                "defaultLanguage": {
+                    "type": "string"
+                },
                 "description": {
                     "type": "string"
                 },
@@ -75,12 +94,6 @@
                 },
                 "publishedAt": {
                     "type": "string"
-                },
-                "tags": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
                 },
                 "thumbnails": {
                     "type": "object",
@@ -178,7 +191,41 @@
                     "type": "string"
                 }
             }
+        },
+        "status": {
+            "type": "object",
+            "properties": {
+                "embeddable": {
+                    "type": "boolean"
+                },
+                "license": {
+                    "type": "string"
+                },
+                "madeForKids": {
+                    "type": "boolean"
+                },
+                "privacyStatus": {
+                    "type": "string"
+                },
+                "publicStatsViewable": {
+                    "type": "boolean"
+                },
+                "uploadStatus": {
+                    "type": "string"
+                }
+            }
+        },
+        "topicDetails": {
+            "type": "object",
+            "properties": {
+                "topicCategories": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                }
+            }
         }
     },
-    "version": 2
+    "version": 5
 }

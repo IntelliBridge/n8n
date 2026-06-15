@@ -1,12 +1,10 @@
+import { mockInstance } from '@n8n/backend-test-utils';
+import type { AuthenticatedRequest, User, ApiKey } from '@n8n/db';
 import { Container } from '@n8n/di';
 import { mock } from 'jest-mock-extended';
 
-import type { ApiKey } from '@/databases/entities/api-key';
-import type { User } from '@/databases/entities/user';
 import { EventService } from '@/events/event.service';
-import type { AuthenticatedRequest } from '@/requests';
 import { PublicApiKeyService } from '@/services/public-api-key.service';
-import { mockInstance } from '@test/mocking';
 
 import { ApiKeysController } from '../api-keys.controller';
 
@@ -94,9 +92,7 @@ describe('ApiKeysController', () => {
 	});
 
 	describe('getAPIKeys', () => {
-		it('should return the users api keys redacted', async () => {
-			// Arrange
-
+		it('forwards pagination params to the service and returns its envelope', async () => {
 			const apiKeyData = {
 				id: '123',
 				userId: '123',
@@ -106,19 +102,17 @@ describe('ApiKeysController', () => {
 				updatedAt: new Date(),
 			} as ApiKey;
 
-			publicApiKeyService.getRedactedApiKeysForUser.mockResolvedValue([
-				{ ...apiKeyData, expiresAt: null },
-			]);
+			publicApiKeyService.getRedactedApiKeysForUser.mockResolvedValue({
+				items: [{ ...apiKeyData, expiresAt: null }],
+				count: 1,
+			});
 
-			// Act
+			const result = await controller.getApiKeys(req, mock(), { take: 10, skip: 5 } as never);
 
-			const apiKeys = await controller.getApiKeys(req);
-
-			// Assert
-
-			expect(apiKeys).toEqual([{ ...apiKeyData, expiresAt: null }]);
+			expect(result).toEqual({ items: [{ ...apiKeyData, expiresAt: null }], count: 1 });
 			expect(publicApiKeyService.getRedactedApiKeysForUser).toHaveBeenCalledWith(
 				expect.objectContaining({ id: req.user.id }),
+				{ take: 10, skip: 5 },
 			);
 		});
 	});
@@ -131,7 +125,7 @@ describe('ApiKeysController', () => {
 				id: '123',
 				password: 'password',
 				authIdentities: [],
-				role: 'global:member',
+				role: { slug: 'global:member' },
 				mfaEnabled: false,
 			});
 

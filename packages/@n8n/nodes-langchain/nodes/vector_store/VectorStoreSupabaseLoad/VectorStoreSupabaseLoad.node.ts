@@ -10,11 +10,9 @@ import {
 	NodeConnectionTypes,
 } from 'n8n-workflow';
 
-import { getMetadataFiltersValues } from '@utils/helpers';
-import { logWrapper } from '@utils/logWrapper';
-import { metadataFilterField } from '@utils/sharedFields';
+import { logWrapper, getMetadataFiltersValues, metadataFilterField } from '@n8n/ai-utilities';
 
-import { supabaseTableNameSearch } from '../shared/createVectorStoreNode/methods/listSearch';
+import { supabaseTableNameSearch } from '../shared/methods/listSearch';
 import { supabaseTableNameRLC } from '../shared/descriptions';
 
 // This node is deprecated. Use VectorStoreSupabase instead.
@@ -36,7 +34,13 @@ export class VectorStoreSupabaseLoad implements INodeType {
 			subcategories: {
 				AI: ['Vector Stores'],
 			},
-			resources: {},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoresupabase/',
+					},
+				],
+			},
 		},
 		credentials: [
 			{
@@ -91,7 +95,6 @@ export class VectorStoreSupabaseLoad implements INodeType {
 			0,
 		)) as Embeddings;
 
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
 		const client = createClient(credentials.host as string, credentials.serviceRole as string);
 		const config: SupabaseLibArgs = {
 			client,

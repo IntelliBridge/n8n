@@ -10,6 +10,7 @@ import {
 	cellFormat,
 	handlingExtraData,
 	locationDefine,
+	upsertColumnsResourceMapperBuilderHint,
 	useAppendOption,
 } from './commonDescription';
 import type { GoogleSheet } from '../../helpers/GoogleSheet';
@@ -171,6 +172,43 @@ export const description: SheetProperties = [
 			value: null,
 		},
 		required: true,
+		builderHint: upsertColumnsResourceMapperBuilderHint,
+		typeOptions: {
+			loadOptionsDependsOn: ['sheetName.value'],
+			resourceMapper: {
+				resourceMapperMethod: 'getMappingColumns',
+				mode: 'upsert',
+				fieldWords: {
+					singular: 'column',
+					plural: 'columns',
+				},
+				addAllFields: true,
+				multiKeyMatch: false,
+				allowEmptyValues: true,
+			},
+		},
+		displayOptions: {
+			show: {
+				resource: ['sheet'],
+				operation: ['appendOrUpdate'],
+				'@version': [{ _cnd: { gte: 4.7 } }],
+			},
+			hide: {
+				...untilSheetSelected,
+			},
+		},
+	},
+	{
+		displayName: 'Columns',
+		name: 'columns',
+		type: 'resourceMapper',
+		noDataExpression: true,
+		default: {
+			mappingMode: 'defineBelow',
+			value: null,
+		},
+		required: true,
+		builderHint: upsertColumnsResourceMapperBuilderHint,
 		typeOptions: {
 			loadOptionsDependsOn: ['sheetName.value'],
 			resourceMapper: {
@@ -188,7 +226,7 @@ export const description: SheetProperties = [
 			show: {
 				resource: ['sheet'],
 				operation: ['appendOrUpdate'],
-				'@version': [{ _cnd: { gte: 4 } }],
+				'@version': [{ _cnd: { between: { from: 4, to: 4.6 } } }],
 			},
 			hide: {
 				...untilSheetSelected,
@@ -364,7 +402,7 @@ export async function execute(
 						"At least one value has to be added under 'Values to Send'",
 					);
 				}
-				// eslint-disable-next-line @typescript-eslint/no-loop-func
+
 				const fields = valuesToSend.reduce((acc, entry) => {
 					if (entry.column === 'newColumn') {
 						const columnName = entry.columnName as string;

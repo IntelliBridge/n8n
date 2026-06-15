@@ -1,15 +1,13 @@
+import type { CredentialPayload } from '@n8n/backend-test-utils';
+import type { Project, User, ICredentialsDb } from '@n8n/db';
+import {
+	CredentialsEntity,
+	CredentialsRepository,
+	ProjectRepository,
+	SharedCredentialsRepository,
+} from '@n8n/db';
 import { Container } from '@n8n/di';
-
-import { CredentialsEntity } from '@/databases/entities/credentials-entity';
-import type { Project } from '@/databases/entities/project';
-import type { CredentialSharingRole } from '@/databases/entities/shared-credentials';
-import type { User } from '@/databases/entities/user';
-import { CredentialsRepository } from '@/databases/repositories/credentials.repository';
-import { ProjectRepository } from '@/databases/repositories/project.repository';
-import { SharedCredentialsRepository } from '@/databases/repositories/shared-credentials.repository';
-import type { ICredentialsDb } from '@/interfaces';
-
-import type { CredentialPayload } from '../types';
+import type { CredentialSharingRole } from '@n8n/permissions';
 
 export async function encryptCredentialData(
 	credential: CredentialsEntity,
@@ -18,7 +16,7 @@ export async function encryptCredentialData(
 	const coreCredential = createCredentialsFromCredentialsEntity(credential, true);
 
 	// @ts-ignore
-	coreCredential.setData(credential.data);
+	await coreCredential.setData(credential.data);
 
 	return Object.assign(credential, coreCredential.getDataToSave());
 }
@@ -27,7 +25,7 @@ export async function decryptCredentialData(credential: ICredentialsDb): Promise
 	const { createCredentialsFromCredentialsEntity } = await import('@/credentials-helper');
 	const coreCredential = createCredentialsFromCredentialsEntity(credential);
 
-	return coreCredential.getData();
+	return await coreCredential.getData();
 }
 
 const emptyAttributes = {

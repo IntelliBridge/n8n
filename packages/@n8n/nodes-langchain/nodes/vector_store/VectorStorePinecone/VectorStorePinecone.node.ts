@@ -1,11 +1,11 @@
 import type { PineconeStoreParams } from '@langchain/pinecone';
 import { PineconeStore } from '@langchain/pinecone';
 import { Pinecone } from '@pinecone-database/pinecone';
-import { metadataFilterField } from '@utils/sharedFields';
 import { NodeOperationError, type INodeProperties } from 'n8n-workflow';
 
-import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
-import { pineconeIndexSearch } from '../shared/createVectorStoreNode/methods/listSearch';
+import { metadataFilterField, createVectorStoreNode } from '@n8n/ai-utilities';
+
+import { pineconeIndexSearch } from '../shared/methods/listSearch';
 import { pineconeIndexRLC } from '../shared/descriptions';
 
 const sharedFields: INodeProperties[] = [pineconeIndexRLC];
@@ -56,7 +56,8 @@ export class VectorStorePinecone extends createVectorStoreNode<PineconeStore>({
 		name: 'vectorStorePinecone',
 		description: 'Work with your data in Pinecone Vector Store',
 		icon: { light: 'file:pinecone.svg', dark: 'file:pinecone.dark.svg' },
-		docsUrl: '',
+		docsUrl:
+			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorepinecone/',
 		credentials: [
 			{
 				name: 'pineconeApi',

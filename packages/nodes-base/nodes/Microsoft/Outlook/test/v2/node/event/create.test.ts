@@ -1,12 +1,17 @@
+import { NodeTestHarness } from '@nodes-testing/node-test-harness';
 import nock from 'nock';
-
-import { testWorkflows } from '@test/nodes/Helpers';
 
 describe('Test MicrosoftOutlookV2, contact => event', () => {
 	nock('https://graph.microsoft.com/v1.0/me')
 		.post(
 			'/calendars/AAMkADlhOTA0MTc5LWUwOTMtNDRkZS05NzE0LTNlYmI0ZWM5OWI5OABGAAAAAABPLqzvT6b9RLP0CKzHiJrRBwBZf4De-LkrSqpPI8eyjUmAAAAAAAEGAABZf4De-LkrSqpPI8eyjUmAAAAJ9-JDAAA=/events',
 			{
+				attendees: [
+					{
+						emailAddress: { address: 'samantha@contoso.com', name: 'Samantha Booth' },
+						type: 'required',
+					},
+				],
 				body: { content: 'event description', contentType: 'html' },
 				bodyPreview: 'preview',
 				categories: ['Yellow category', 'Orange category'],
@@ -17,6 +22,7 @@ describe('Test MicrosoftOutlookV2, contact => event', () => {
 				isCancelled: false,
 				isDraft: false,
 				isOnlineMeeting: true,
+				location: { displayName: "Harry's Bar" },
 				sensitivity: 'personal',
 				showAs: 'busy',
 				start: { dateTime: '2023-09-05T07:26:47.000Z', timeZone: 'UTC' },
@@ -107,6 +113,7 @@ describe('Test MicrosoftOutlookV2, contact => event', () => {
 			},
 		});
 
-	const workflows = ['nodes/Microsoft/Outlook/test/v2/node/event/create.workflow.json'];
-	testWorkflows(workflows);
+	new NodeTestHarness().setupTests({
+		workflowFiles: ['create.workflow.json'],
+	});
 });

@@ -9,6 +9,8 @@ import {
 import {
 	seaTableApiRequest,
 	enrichColumns,
+	escapeSqlIdentifier,
+	escapeSqlString,
 	simplify_new,
 	getBaseCollaborators,
 } from '../../GenericFunctions';
@@ -57,7 +59,7 @@ export async function execute(
 	// get parameters
 	const tableName = this.getNodeParameter('tableName', index) as string;
 	const rowId = this.getNodeParameter('rowId', index) as string;
-	const options = this.getNodeParameter('options', index) as IDataObject;
+	const options = this.getNodeParameter('options', index);
 
 	// get collaborators
 	const collaborators = await getBaseCollaborators.call(this);
@@ -69,7 +71,7 @@ export async function execute(
 		'POST',
 		'/api-gateway/api/v2/dtables/{{dtable_uuid}}/sql/',
 		{
-			sql: `SELECT * FROM \`${tableName}\` WHERE _id = '${rowId}'`,
+			sql: `SELECT * FROM \`${escapeSqlIdentifier(tableName)}\` WHERE _id = '${escapeSqlString(rowId)}'`,
 			convert_keys: options.convert ?? true,
 		},
 	)) as IRowResponse;

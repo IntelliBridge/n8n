@@ -1,36 +1,25 @@
-import type { UnixTimestamp, UpdateApiKeyRequestDto } from '@n8n/api-types';
-import type { CreateApiKeyRequestDto } from '@n8n/api-types/src/dto/api-keys/create-api-key-request.dto';
+import type { CreateApiKeyRequestDto, UnixTimestamp, UpdateApiKeyRequestDto } from '@n8n/api-types';
+import type { User } from '@n8n/db';
+import { ApiKey, ApiKeyRepository, withTransaction } from '@n8n/db';
 import { Service } from '@n8n/di';
-import type { GlobalRole, ApiKeyScope } from '@n8n/permissions';
+import type { ApiKeyScope, AuthPrincipal } from '@n8n/permissions';
+import { getApiKeyScopesForRole, getOwnerOnlyApiKeyScopes } from '@n8n/permissions';
 // eslint-disable-next-line n8n-local-rules/misplaced-n8n-typeorm-import
 import type { EntityManager } from '@n8n/typeorm';
-import type { NextFunction, Request, Response } from 'express';
-import { TokenExpiredError } from 'jsonwebtoken';
-import type { OpenAPIV3 } from 'openapi-types';
-
-import { ApiKey } from '@/databases/entities/api-key';
-import type { User } from '@/databases/entities/user';
-import { ApiKeyRepository } from '@/databases/repositories/api-key.repository';
-import { UserRepository } from '@/databases/repositories/user.repository';
-import { EventService } from '@/events/event.service';
-import { getApiKeyScopesForRole, getOwnerOnlyApiKeyScopes } from '@/public-api/permissions.ee';
-import type { AuthenticatedRequest } from '@/requests';
-
+import { randomUUID } from 'crypto';
 import { JwtService } from './jwt.service';
 
-const API_KEY_AUDIENCE = 'public-api';
-const API_KEY_ISSUER = 'n8n';
+export const API_KEY_AUDIENCE = 'public-api';
+export const API_KEY_ISSUER = 'n8n';
 const REDACT_API_KEY_REVEAL_COUNT = 4;
 const REDACT_API_KEY_MAX_LENGTH = 10;
-const PREFIX_LEGACY_API_KEY = 'n8n_api_';
+export const PREFIX_LEGACY_API_KEY = 'n8n_api_';
 
 @Service()
 export class PublicApiKeyService {
 	constructor(
 		private readonly apiKeyRepository: ApiKeyRepository,
-		private readonly userRepository: UserRepository,
 		private readonly jwtService: JwtService,
-		private readonly eventService: EventService,
 	) {}
 
 	/**
@@ -48,6 +37,7 @@ export class PublicApiKeyService {
 				apiKey,
 				label,
 				scopes,
+				audience: API_KEY_AUDIENCE,
 			}),
 		);
 
@@ -55,20 +45,40 @@ export class PublicApiKeyService {
 	}
 
 	/**
-	 * Retrieves and redacts API keys for a given user.
-	 * @param user - The user for whom to retrieve and redact API keys.
+	 * Retrieves a page of redacted API keys for a given user, ordered by
+	 * `createdAt` descending. `count` is the total across all pages.
 	 */
-	async getRedactedApiKeysForUser(user: User) {
-		const apiKeys = await this.apiKeyRepository.findBy({ userId: user.id });
-		return apiKeys.map((apiKeyRecord) => ({
-			...apiKeyRecord,
-			apiKey: this.redactApiKey(apiKeyRecord.apiKey),
-			expiresAt: this.getApiKeyExpiration(apiKeyRecord.apiKey),
-		}));
+	async getRedactedApiKeysForUser(user: User, options: { take?: number; skip?: number } = {}) {
+		const [apiKeys, count] = await this.apiKeyRepository.findAndCount({
+			where: { userId: user.id, audience: API_KEY_AUDIENCE },
+			order: { createdAt: 'DESC' },
+			take: options.take,
+			skip: options.skip,
+		});
+		return {
+			items: apiKeys.map((apiKeyRecord) => ({
+				...apiKeyRecord,
+				apiKey: this.redactApiKey(apiKeyRecord.apiKey),
+				expiresAt: this.getApiKeyExpiration(apiKeyRecord.apiKey),
+			})),
+			count,
+		};
 	}
 
 	async deleteApiKeyForUser(user: User, apiKeyId: string) {
 		await this.apiKeyRepository.delete({ userId: user.id, id: apiKeyId });
+	}
+
+	async deleteAllApiKeysForUser(user: User, tx?: EntityManager) {
+		return await withTransaction(this.apiKeyRepository.manager, tx, async (em) => {
+			const userApiKeys = await em.find(ApiKey, {
+				where: { userId: user.id, audience: API_KEY_AUDIENCE },
+			});
+
+			return await Promise.all(
+				userApiKeys.map(async (apiKey) => await em.delete(ApiKey, { id: apiKey.id })),
+			);
+		});
 	}
 
 	async updateApiKeyForUser(
@@ -77,15 +87,6 @@ export class PublicApiKeyService {
 		{ label, scopes }: UpdateApiKeyRequestDto,
 	) {
 		await this.apiKeyRepository.update({ id: apiKeyId, userId: user.id }, { label, scopes });
-	}
-
-	private async getUserForApiKey(apiKey: string) {
-		return await this.userRepository
-			.createQueryBuilder('user')
-			.innerJoin(ApiKey, 'apiKey', 'apiKey.userId = user.id')
-			.where('apiKey.apiKey = :apiKey', { apiKey })
-			.select('user')
-			.getOne();
 	}
 
 	/**
@@ -106,49 +107,11 @@ export class PublicApiKeyService {
 		return redactedPart + visiblePart;
 	}
 
-	getAuthMiddleware(version: string) {
-		return async (
-			req: AuthenticatedRequest,
-			_scopes: unknown,
-			schema: OpenAPIV3.ApiKeySecurityScheme,
-		): Promise<boolean> => {
-			const providedApiKey = req.headers[schema.name.toLowerCase()] as string;
-
-			const user = await this.getUserForApiKey(providedApiKey);
-
-			if (!user) return false;
-
-			// Legacy API keys are not JWTs and do not need to be verified.
-			if (!providedApiKey.startsWith(PREFIX_LEGACY_API_KEY)) {
-				try {
-					this.jwtService.verify(providedApiKey, {
-						issuer: API_KEY_ISSUER,
-						audience: API_KEY_AUDIENCE,
-					});
-				} catch (e) {
-					if (e instanceof TokenExpiredError) return false;
-					throw e;
-				}
-			}
-
-			this.eventService.emit('public-api-invoked', {
-				userId: user.id,
-				path: req.path,
-				method: req.method,
-				apiVersion: version,
-			});
-
-			req.user = user;
-
-			return true;
-		};
-	}
-
 	private generateApiKey(user: User, expiresAt: UnixTimestamp) {
 		const nowInSeconds = Math.floor(Date.now() / 1000);
 
 		return this.jwtService.sign(
-			{ sub: user.id, iss: API_KEY_ISSUER, aud: API_KEY_AUDIENCE },
+			{ sub: user.id, iss: API_KEY_ISSUER, aud: API_KEY_AUDIENCE, jti: randomUUID() },
 			{ ...(expiresAt && { expiresIn: expiresAt - nowInSeconds }) },
 		);
 	}
@@ -158,38 +121,19 @@ export class PublicApiKeyService {
 		return decoded?.exp ?? null;
 	};
 
-	apiKeyHasValidScopesForRole(role: GlobalRole, apiKeyScopes: ApiKeyScope[]) {
+	apiKeyHasValidScopesForRole(role: AuthPrincipal, apiKeyScopes: ApiKeyScope[]) {
 		const scopesForRole = getApiKeyScopesForRole(role);
 		return apiKeyScopes.every((scope) => scopesForRole.includes(scope));
 	}
 
 	async apiKeyHasValidScopes(apiKey: string, endpointScope: ApiKeyScope) {
 		const apiKeyData = await this.apiKeyRepository.findOne({
-			where: { apiKey },
+			where: { apiKey, audience: API_KEY_AUDIENCE },
 			select: { scopes: true },
 		});
 		if (!apiKeyData) return false;
 
 		return apiKeyData.scopes.includes(endpointScope);
-	}
-
-	getApiKeyScopeMiddleware(endpointScope: ApiKeyScope) {
-		return async (req: Request, res: Response, next: NextFunction) => {
-			const apiKey = req.headers['x-n8n-api-key'];
-
-			if (apiKey === undefined || typeof apiKey !== 'string') {
-				res.status(401).json({ message: 'Unauthorized' });
-				return;
-			}
-
-			const valid = await this.apiKeyHasValidScopes(apiKey, endpointScope);
-
-			if (!valid) {
-				res.status(403).json({ message: 'Forbidden' });
-				return;
-			}
-			next();
-		};
 	}
 
 	async removeOwnerOnlyScopesFromApiKeys(user: User, tx?: EntityManager) {
@@ -198,7 +142,7 @@ export class PublicApiKeyService {
 		const ownerOnlyScopes = getOwnerOnlyApiKeyScopes();
 
 		const userApiKeys = await manager.find(ApiKey, {
-			where: { userId: user.id },
+			where: { userId: user.id, audience: API_KEY_AUDIENCE },
 		});
 
 		const keysWithOwnerScopes = userApiKeys.filter((apiKey) =>

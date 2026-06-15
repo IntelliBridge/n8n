@@ -1,4 +1,4 @@
-import { cloneDeep } from 'lodash';
+import cloneDeep from 'lodash/cloneDeep';
 import difference from 'lodash/difference';
 import get from 'lodash/get';
 import intersection from 'lodash/intersection';
@@ -166,11 +166,10 @@ function combineItems(
 	}
 
 	exceptFields.forEach((field) => {
-		entry.json[field] = match.json[field];
 		if (disableDotNotation) {
 			entry.json[field] = match.json[field];
 		} else {
-			const value = get(match.json, field) || null;
+			const value = get(match.json, field) ?? null;
 			set(entry, ['json', field], value);
 		}
 	});

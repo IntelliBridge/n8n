@@ -1,9 +1,6 @@
 {
     "type": "object",
     "properties": {
-        "dealId": {
-            "type": "integer"
-        },
         "isDeleted": {
             "type": "boolean"
         },
@@ -25,5 +22,5 @@
             }
         }
     },
-    "version": 2
+    "version": 7
 }

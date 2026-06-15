@@ -1,3 +1,4 @@
+import { DateTimeColumn } from '@n8n/db';
 import {
 	BaseEntity,
 	Column,
@@ -18,7 +19,6 @@ import {
 	PeriodUnitToNumber,
 	TypeToNumber,
 } from './insights-shared';
-import { datetimeColumnType } from '../../../../databases/entities/abstract-entity';
 
 @Entity()
 export class InsightsByPeriod extends BaseEntity {
@@ -36,19 +36,25 @@ export class InsightsByPeriod extends BaseEntity {
 	private type_: number;
 
 	get type() {
-		if (!isValidTypeNumber(this.type_)) {
+		const typeValue = this.type_;
+		if (!isValidTypeNumber(typeValue)) {
 			throw new UnexpectedError(
-				`Type '${this.type_}' is not a valid type for 'InsightsByPeriod.type'`,
+				`Type '${typeValue}' is not a valid type for 'InsightsByPeriod.type'`,
 			);
 		}
 
-		return NumberToType[this.type_];
+		return NumberToType[typeValue];
 	}
 
 	set type(value: keyof typeof TypeToNumber) {
 		this.type_ = TypeToNumber[value];
 	}
 
+	/**
+	 * Stored as BIGINT in database (see migration 1759399811000).
+	 * JavaScript number type has precision limits at ±2^53-1 (9,007,199,254,740,991).
+	 * Values exceeding Number.MAX_SAFE_INTEGER will lose precision.
+	 */
 	@Column()
 	value: number;
 
@@ -56,19 +62,20 @@ export class InsightsByPeriod extends BaseEntity {
 	private periodUnit_: number;
 
 	get periodUnit() {
-		if (!isValidPeriodNumber(this.periodUnit_)) {
+		const periodUnitValue = this.periodUnit_;
+		if (!isValidPeriodNumber(periodUnitValue)) {
 			throw new UnexpectedError(
-				`Period unit '${this.periodUnit_}' is not a valid unit for 'InsightsByPeriod.periodUnit'`,
+				`Period unit '${periodUnitValue}' is not a valid unit for 'InsightsByPeriod.periodUnit'`,
 			);
 		}
 
-		return NumberToPeriodUnit[this.periodUnit_];
+		return NumberToPeriodUnit[periodUnitValue];
 	}
 
 	set periodUnit(value: PeriodUnit) {
 		this.periodUnit_ = PeriodUnitToNumber[value];
 	}
 
-	@Column({ type: datetimeColumnType })
+	@DateTimeColumn()
 	periodStart: Date;
 }

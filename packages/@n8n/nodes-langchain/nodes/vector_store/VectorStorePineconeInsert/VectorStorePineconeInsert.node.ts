@@ -10,11 +10,10 @@ import {
 	NodeConnectionTypes,
 } from 'n8n-workflow';
 
-import type { N8nJsonLoader } from '@utils/N8nJsonLoader';
+import { processDocuments, type N8nJsonLoader } from '@n8n/ai-utilities';
 
-import { pineconeIndexSearch } from '../shared/createVectorStoreNode/methods/listSearch';
+import { pineconeIndexSearch } from '../shared/methods/listSearch';
 import { pineconeIndexRLC } from '../shared/descriptions';
-import { processDocuments } from '../shared/processDocuments';
 
 // This node is deprecated. Use VectorStorePinecone instead.
 export class VectorStorePineconeInsert implements INodeType {
@@ -36,7 +35,13 @@ export class VectorStorePineconeInsert implements INodeType {
 			subcategories: {
 				AI: ['Vector Stores'],
 			},
-			resources: {},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorepinecone/',
+					},
+				],
+			},
 		},
 		credentials: [
 			{

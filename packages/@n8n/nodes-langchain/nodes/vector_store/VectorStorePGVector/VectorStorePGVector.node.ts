@@ -4,13 +4,12 @@ import {
 	type PGVectorStoreArgs,
 } from '@langchain/community/vectorstores/pgvector';
 import type { EmbeddingsInterface } from '@langchain/core/embeddings';
-import { metadataFilterField } from '@utils/sharedFields';
 import { configurePostgres } from 'n8n-nodes-base/dist/nodes/Postgres/transport/index';
 import type { PostgresNodeCredentials } from 'n8n-nodes-base/dist/nodes/Postgres/v2/helpers/interfaces';
 import type { INodeProperties } from 'n8n-workflow';
 import type pg from 'pg';
 
-import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
+import { metadataFilterField, createVectorStoreNode } from '@n8n/ai-utilities';
 
 type CollectionOptions = {
 	useCollection?: boolean;
@@ -185,7 +184,7 @@ const retrieveFields: INodeProperties[] = [
  * similaritySearchVectorWithScore should use this.filter instead of
  * expecting it from the parameter
  */
-class ExtendedPGVectorStore extends PGVectorStore {
+export class ExtendedPGVectorStore extends PGVectorStore {
 	static async initialize(
 		embeddings: EmbeddingsInterface,
 		args: PGVectorStoreArgs & { dimensions?: number },
@@ -217,7 +216,8 @@ export class VectorStorePGVector extends createVectorStoreNode<ExtendedPGVectorS
 		description: 'Work with your data in Postgresql with the PGVector extension',
 		icon: 'file:postgres.svg',
 		displayName: 'Postgres PGVector Store',
-		docsUrl: '',
+		docsUrl:
+			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstorepgvector/',
 		name: 'vectorStorePGVector',
 		credentials: [
 			{
@@ -252,7 +252,7 @@ export class VectorStorePGVector extends createVectorStoreNode<ExtendedPGVectorS
 			{},
 		) as CollectionOptions;
 
-		if (collectionOptions && collectionOptions.useCollection) {
+		if (collectionOptions?.useCollection) {
 			config.collectionName = collectionOptions.collectionName;
 			config.collectionTableName = collectionOptions.collectionTableName;
 		}
@@ -294,7 +294,7 @@ export class VectorStorePGVector extends createVectorStoreNode<ExtendedPGVectorS
 			{},
 		) as CollectionOptions;
 
-		if (collectionOptions && collectionOptions.useCollection) {
+		if (collectionOptions?.useCollection) {
 			config.collectionName = collectionOptions.collectionName;
 			config.collectionTableName = collectionOptions.collectionTableName;
 		}

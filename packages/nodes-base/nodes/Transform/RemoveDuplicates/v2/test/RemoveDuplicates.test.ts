@@ -1,4 +1,3 @@
-/* eslint-disable n8n-nodes-base/node-filename-against-convention */
 import { mock } from 'jest-mock-extended';
 import type { IExecuteFunctions, INodeExecutionData, INodeTypeBaseDescription } from 'n8n-workflow';
 
@@ -12,7 +11,7 @@ describe('RemoveDuplicatesV2', () => {
 		const baseDescription: INodeTypeBaseDescription = {
 			displayName: 'Remove Duplicates',
 			name: 'removeDuplicates',
-			icon: 'file:removeDuplicates.svg',
+			icon: 'node:remove-duplicates',
 			group: ['transform'],
 			description: 'Delete items with matching field values',
 		};

@@ -10,19 +10,22 @@ export class ManualTrigger implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Manual Trigger',
 		name: 'manualTrigger',
-		icon: 'fa:mouse-pointer',
+		icon: 'node:manual-trigger',
+		iconColor: 'black',
 		group: ['trigger'],
 		version: 1,
 		description: 'Runs the flow on clicking a button in n8n',
 		eventTriggerDescription: '',
 		maxNodes: 1,
 		defaults: {
-			name: 'When clicking ‘Test workflow’',
-			color: '#909298',
+			name: 'When clicking ‘Execute workflow’',
 		},
 
 		inputs: [],
 		outputs: [NodeConnectionTypes.Main],
+		builderHint: {
+			searchHint: 'There can only be one manual trigger node per workflow',
+		},
 		properties: [
 			{
 				displayName:

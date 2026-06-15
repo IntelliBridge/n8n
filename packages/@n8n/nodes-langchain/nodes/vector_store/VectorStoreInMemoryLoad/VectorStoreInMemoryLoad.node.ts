@@ -1,4 +1,3 @@
-/* eslint-disable n8n-nodes-base/node-dirname-against-convention */
 import type { Embeddings } from '@langchain/core/embeddings';
 import {
 	NodeConnectionTypes,
@@ -8,9 +7,7 @@ import {
 	type SupplyData,
 } from 'n8n-workflow';
 
-import { logWrapper } from '@utils/logWrapper';
-
-import { MemoryVectorStoreManager } from '../shared/MemoryManager/MemoryVectorStoreManager';
+import { logWrapper, MemoryVectorStoreManager } from '@n8n/ai-utilities';
 
 // This node is deprecated. Use VectorStoreInMemory instead.
 export class VectorStoreInMemoryLoad implements INodeType {
@@ -30,9 +27,15 @@ export class VectorStoreInMemoryLoad implements INodeType {
 			subcategories: {
 				AI: ['Vector Stores'],
 			},
-			resources: {},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoreinmemory/',
+					},
+				],
+			},
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node
+
 		inputs: [
 			{
 				displayName: 'Embedding',

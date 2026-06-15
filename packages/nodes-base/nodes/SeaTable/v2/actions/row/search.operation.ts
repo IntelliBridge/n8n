@@ -9,6 +9,8 @@ import {
 import {
 	seaTableApiRequest,
 	enrichColumns,
+	escapeSqlIdentifier,
+	escapeSqlString,
 	simplify_new,
 	getBaseCollaborators,
 } from '../../GenericFunctions';
@@ -96,23 +98,24 @@ export async function execute(
 	const searchColumn = this.getNodeParameter('searchColumn', index) as string;
 	const searchTerm = this.getNodeParameter('searchTerm', index) as string | number;
 	let searchTermString = String(searchTerm);
-	const options = this.getNodeParameter('options', index) as IDataObject;
+	const options = this.getNodeParameter('options', index);
 
 	// get collaborators
 	const collaborators = await getBaseCollaborators.call(this);
 
 	// this is the base query. The WHERE has to be finalized...
-	let sqlQuery = `SELECT * FROM \`${tableName}\` WHERE \`${searchColumn}\``;
+	let sqlQuery = `SELECT * FROM \`${escapeSqlIdentifier(tableName)}\` WHERE \`${escapeSqlIdentifier(searchColumn)}\``;
 
 	if (options.insensitive) {
 		searchTermString = searchTermString.toLowerCase();
-		sqlQuery = `SELECT * FROM \`${tableName}\` WHERE lower(\`${searchColumn}\`)`;
+		sqlQuery = `SELECT * FROM \`${escapeSqlIdentifier(tableName)}\` WHERE lower(\`${escapeSqlIdentifier(searchColumn)}\`)`;
 	}
 
 	const wildcard = options.wildcard ?? true;
+	const escapedSearchTerm = escapeSqlString(searchTermString);
 
-	if (wildcard) sqlQuery = sqlQuery + ' LIKE "%' + searchTermString + '%"';
-	else if (!wildcard) sqlQuery = sqlQuery + ' = "' + searchTermString + '"';
+	if (wildcard) sqlQuery = sqlQuery + ' LIKE "%' + escapedSearchTerm + '%"';
+	else if (!wildcard) sqlQuery = sqlQuery + ' = "' + escapedSearchTerm + '"';
 
 	const sqlResult = (await seaTableApiRequest.call(
 		this,

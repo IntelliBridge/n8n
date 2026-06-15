@@ -1,38 +1,33 @@
-import type { AssignableRole, GlobalRole, Scope } from '@n8n/permissions';
-import type { Application } from 'express';
+import type {
+	ICredentialsBase,
+	IExecutionBase,
+	IExecutionDb,
+	ITagBase,
+	IWorkflowDb,
+} from '@n8n/db';
+import type { AssignableGlobalRole } from '@n8n/permissions';
+import type { Application, Response } from 'express';
 import type {
 	ExecutionError,
 	ICredentialDataDecryptedObject,
 	ICredentialsDecrypted,
-	ICredentialsEncrypted,
 	IDeferredPromise,
 	IExecuteResponsePromiseData,
 	IRun,
-	IRunExecutionData,
 	ITelemetryTrackProperties,
 	IWorkflowBase,
 	CredentialLoadingDetails,
 	WorkflowExecuteMode,
 	ExecutionStatus,
 	ExecutionSummary,
-	FeatureFlags,
-	IUserSettings,
 	IWorkflowExecutionDataProcess,
-	DeduplicationMode,
-	DeduplicationItemTypes,
+	IExecutionContext,
+	WorkflowExecutionSource,
 } from 'n8n-workflow';
 import type PCancelable from 'p-cancelable';
 
 import type { ActiveWorkflowManager } from '@/active-workflow-manager';
-import type { AnnotationTagEntity } from '@/databases/entities/annotation-tag-entity.ee';
-import type { AuthProviderType } from '@/databases/entities/auth-identity';
-import type { SharedCredentials } from '@/databases/entities/shared-credentials';
-import type { TagEntity } from '@/databases/entities/tag-entity';
-import type { User } from '@/databases/entities/user';
-
-import type { Folder } from './databases/entities/folder';
-import type { ExternalHooks } from './external-hooks';
-import type { WorkflowWithSharingsAndCredentials } from './workflows/workflows.types';
+import type { ExternalHooks } from '@/external-hooks';
 
 export interface ICredentialsTypeData {
 	[key: string]: CredentialLoadingDetails;
@@ -43,83 +38,53 @@ export interface ICredentialsOverwrite {
 }
 
 // ----------------------------------
-//               ProcessedData
-// ----------------------------------
-
-export interface IProcessedDataLatest {
-	mode: DeduplicationMode;
-	data: DeduplicationItemTypes;
-}
-
-export interface IProcessedDataEntries {
-	mode: DeduplicationMode;
-	data: DeduplicationItemTypes[];
-}
-
-// ----------------------------------
 //               tags
 // ----------------------------------
-
-export interface ITagBase {
-	id: string;
-	name: string;
-}
 
 export interface ITagToImport extends ITagBase {
 	createdAt?: string;
 	updatedAt?: string;
 }
 
-export type UsageCount = {
-	usageCount: number;
-};
-
-export type ITagDb = Pick<TagEntity, 'id' | 'name' | 'createdAt' | 'updatedAt'>;
-
-export type ITagWithCountDb = ITagDb & UsageCount;
-
-export type IAnnotationTagDb = Pick<AnnotationTagEntity, 'id' | 'name' | 'createdAt' | 'updatedAt'>;
-
-export type IAnnotationTagWithCountDb = IAnnotationTagDb & UsageCount;
-
 // ----------------------------------
 //            workflows
 // ----------------------------------
-
-// Almost identical to editor-ui.Interfaces.ts
-export interface IWorkflowDb extends IWorkflowBase {
-	triggerCount: number;
-	tags?: TagEntity[];
-	parentFolder?: Folder | null;
-}
 
 export interface IWorkflowResponse extends IWorkflowBase {
 	id: string;
 }
 
+export interface IWorkflowVersionMetadata {
+	versionMetadata?: {
+		name: string | null;
+		description: string | null;
+	} | null;
+}
+
 export interface IWorkflowToImport
-	extends Omit<IWorkflowBase, 'staticData' | 'pinData' | 'createdAt' | 'updatedAt'> {
-	owner: {
-		type: 'personal';
-		personalEmail: string;
-	};
+	extends Omit<
+			IWorkflowBase,
+			'staticData' | 'pinData' | 'createdAt' | 'updatedAt' | 'activeVersion'
+		>,
+		IWorkflowVersionMetadata {
+	owner?:
+		| {
+				type: 'personal';
+				personalEmail: string;
+		  }
+		| {
+				type: 'team';
+				teamId: string;
+				teamName: string;
+		  };
 	parentFolderId: string | null;
 }
+
+export type IWorkflowWithVersionMetadata = IWorkflowDb & IWorkflowVersionMetadata;
 
 // ----------------------------------
 //            credentials
 // ----------------------------------
-
-export interface ICredentialsBase {
-	createdAt: Date;
-	updatedAt: Date;
-}
-
-export interface ICredentialsDb extends ICredentialsBase, ICredentialsEncrypted {
-	id: string;
-	name: string;
-	shared?: SharedCredentials[];
-}
 
 export type ICredentialsDecryptedDb = ICredentialsBase & ICredentialsDecrypted;
 
@@ -127,60 +92,14 @@ export type ICredentialsDecryptedResponse = ICredentialsDecryptedDb;
 
 export type SaveExecutionDataType = 'all' | 'none';
 
-export interface IExecutionBase {
-	id: string;
-	mode: WorkflowExecuteMode;
-	createdAt: Date; // set by DB
-	startedAt: Date;
-	stoppedAt?: Date; // empty value means execution is still running
-	workflowId: string;
-
-	/**
-	 * @deprecated Use `status` instead
-	 */
-	finished: boolean;
-	retryOf?: string; // If it is a retry, the id of the execution it is a retry of.
-	retrySuccessId?: string; // If it failed and a retry did succeed. The id of the successful retry.
-	status: ExecutionStatus;
-	waitTill?: Date | null;
-}
-
-// Data in regular format with references
-export interface IExecutionDb extends IExecutionBase {
-	data: IRunExecutionData;
-	workflowData: IWorkflowBase;
-}
-
-/** Payload for creating an execution. */
-export type CreateExecutionPayload = Omit<IExecutionDb, 'id' | 'createdAt' | 'startedAt'>;
-
 /** Payload for updating an execution. */
-export type UpdateExecutionPayload = Omit<IExecutionDb, 'id' | 'createdAt'>;
-
-export interface IExecutionResponse extends IExecutionBase {
-	id: string;
-	data: IRunExecutionData;
-	retryOf?: string;
-	retrySuccessId?: string;
-	workflowData: IWorkflowBase | WorkflowWithSharingsAndCredentials;
-	customData: Record<string, string>;
-	annotation: {
-		tags: ITagBase[];
-	};
-}
+export type UpdateExecutionPayload = Omit<IExecutionDb, 'id' | 'createdAt' | 'storedAt'>;
 
 // Flatted data to save memory when saving in database or transferring
 // via REST API
 export interface IExecutionFlatted extends IExecutionBase {
 	data: string;
 	workflowData: IWorkflowBase;
-}
-
-export interface IExecutionFlattedDb extends IExecutionBase {
-	id: string;
-	data: string;
-	workflowData: Omit<IWorkflowBase, 'pinData'>;
-	customData: Record<string, string>;
 }
 
 export interface IExecutionFlattedResponse extends IExecutionFlatted {
@@ -216,19 +135,11 @@ export interface IExecutingWorkflowData {
 	startedAt: Date;
 	/** This promise rejects when the execution is stopped. When the execution finishes (successfully or not), the promise resolves. */
 	postExecutePromise: IDeferredPromise<IRun | undefined>;
+	/** HTTPResponse needed for streaming responses */
+	httpResponse?: Response;
 	responsePromise?: IDeferredPromise<IExecuteResponsePromiseData>;
 	workflowExecution?: PCancelable<IRun>;
 	status: ExecutionStatus;
-}
-
-export interface IPersonalizationSurveyAnswers {
-	email: string | null;
-	codingSkill: string | null;
-	companyIndustry: string[];
-	companySize: string | null;
-	otherCompanyIndustry: string | null;
-	otherWorkArea: string | null;
-	workArea: string[] | string | null;
 }
 
 export interface IActiveDirectorySettings {
@@ -248,6 +159,7 @@ export interface IWorkflowErrorData {
 		error: ExecutionError;
 		lastNodeExecuted: string;
 		mode: WorkflowExecuteMode;
+		executionContext?: IExecutionContext;
 	};
 	trigger?: {
 		error: ExecutionError;
@@ -264,33 +176,6 @@ export interface IWorkflowStatisticsDataLoaded {
 }
 
 // ----------------------------------
-//          community nodes
-// ----------------------------------
-
-export namespace CommunityPackages {
-	export type ParsedPackageName = {
-		packageName: string;
-		rawString: string;
-		scope?: string;
-		version?: string;
-	};
-
-	export type AvailableUpdates = {
-		[packageName: string]: {
-			current: string;
-			wanted: string;
-			latest: string;
-			location: string;
-		};
-	};
-
-	export type PackageStatusCheck = {
-		status: 'OK' | 'Banned';
-		reason?: string;
-	};
-}
-
-// ----------------------------------
 //               telemetry
 // ----------------------------------
 
@@ -299,6 +184,22 @@ export interface IExecutionTrackProperties extends ITelemetryTrackProperties {
 	success: boolean;
 	error_node_type?: string;
 	is_manual: boolean;
+	crashed?: boolean;
+	used_dynamic_credentials?: boolean;
+	execution_source?: WorkflowExecutionSource;
+	mock_data_sources?: string;
+}
+
+export interface IAgentExecutionTrackProperties extends ITelemetryTrackProperties {
+	agent_id: string;
+	/** n8n user ID, present only when the agent run has direct n8n user context. */
+	user_id?: string;
+	/** Fresh user turns only. Resume continuations do not increment this count. */
+	message_count?: number;
+	/** AI SDK usage from agent, title, memory generation, and embedding calls. */
+	token_count?: number;
+	/** Tool invocations only. Resuming a suspended tool does not double-count it. */
+	tool_call_count?: number;
 }
 
 // ----------------------------------
@@ -312,6 +213,10 @@ export interface ILicenseReadResponse {
 			value: number;
 			warningThreshold: number;
 		};
+		workflowsHavingEvaluations: {
+			limit: number;
+			value: number;
+		};
 	};
 	license: {
 		planId: string;
@@ -323,29 +228,9 @@ export interface ILicensePostResponse extends ILicenseReadResponse {
 	managementToken: string;
 }
 
-export interface PublicUser {
-	id: string;
-	email?: string;
-	firstName?: string;
-	lastName?: string;
-	personalizationAnswers?: IPersonalizationSurveyAnswers | null;
-	password?: string;
-	passwordResetToken?: string;
-	createdAt: Date;
-	isPending: boolean;
-	role?: GlobalRole;
-	globalScopes?: Scope[];
-	signInType: AuthProviderType;
-	disabled: boolean;
-	settings?: IUserSettings | null;
-	inviteAcceptUrl?: string;
-	isOwner?: boolean;
-	featureFlags?: FeatureFlags;
-}
-
 export interface Invitation {
 	email: string;
-	role: AssignableRole;
+	role: AssignableGlobalRole;
 }
 
 export interface N8nApp {
@@ -354,5 +239,3 @@ export interface N8nApp {
 	externalHooks: ExternalHooks;
 	activeWorkflowManager: ActiveWorkflowManager;
 }
-
-export type UserSettings = Pick<User, 'id' | 'settings'>;

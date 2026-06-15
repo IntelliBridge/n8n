@@ -3,8 +3,8 @@ import type { MilvusLibArgs } from '@langchain/community/vectorstores/milvus';
 import { MilvusClient } from '@zilliz/milvus2-sdk-node';
 import type { INodeProperties } from 'n8n-workflow';
 
-import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
-import { milvusCollectionsSearch } from '../shared/createVectorStoreNode/methods/listSearch';
+import { createVectorStoreNode } from '@n8n/ai-utilities';
+import { milvusCollectionsSearch } from '../shared/methods/listSearch';
 import { milvusCollectionRLC } from '../shared/descriptions';
 
 const sharedFields: INodeProperties[] = [milvusCollectionRLC];
@@ -33,7 +33,8 @@ export class VectorStoreMilvus extends createVectorStoreNode<Milvus>({
 		name: 'vectorStoreMilvus',
 		description: 'Work with your data in Milvus Vector Store',
 		icon: { light: 'file:milvus-icon-black.svg', dark: 'file:milvus-icon-white.svg' },
-		docsUrl: '',
+		docsUrl:
+			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoremilvus/',
 		credentials: [
 			{
 				name: 'milvusApi',

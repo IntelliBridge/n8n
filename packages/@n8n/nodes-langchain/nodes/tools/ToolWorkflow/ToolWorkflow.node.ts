@@ -9,7 +9,7 @@ export class ToolWorkflow extends VersionedNodeType {
 		const baseDescription: INodeTypeBaseDescription = {
 			displayName: 'Call n8n Sub-Workflow Tool',
 			name: 'toolWorkflow',
-			icon: 'fa:network-wired',
+			icon: 'node:call-n8n-sub-workflow-tool',
 			iconColor: 'black',
 			group: ['transform'],
 			description:
@@ -20,7 +20,13 @@ export class ToolWorkflow extends VersionedNodeType {
 					AI: ['Tools'],
 					Tools: ['Recommended Tools'],
 				},
-				resources: {},
+				resources: {
+					primaryDocumentation: [
+						{
+							url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.toolworkflow/',
+						},
+					],
+				},
 			},
 			defaultVersion: 2.2,
 		};

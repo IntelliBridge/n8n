@@ -1,5 +1,6 @@
-/* eslint-disable n8n-nodes-base/node-dirname-against-convention */
-import type { VectorStore } from '@langchain/core/vectorstores';
+import type { BaseDocumentCompressor } from '@langchain/core/retrievers/document_compressors';
+import { VectorStore } from '@langchain/core/vectorstores';
+import { ContextualCompressionRetriever } from '@langchain/classic/retrievers/contextual_compression';
 import {
 	NodeConnectionTypes,
 	type INodeType,
@@ -8,13 +9,13 @@ import {
 	type SupplyData,
 } from 'n8n-workflow';
 
-import { logWrapper } from '@utils/logWrapper';
+import { logWrapper } from '@n8n/ai-utilities';
 
 export class RetrieverVectorStore implements INodeType {
 	description: INodeTypeDescription = {
 		displayName: 'Vector Store Retriever',
 		name: 'retrieverVectorStore',
-		icon: 'fa:box-open',
+		icon: 'node:vector-store-retriever',
 		iconColor: 'black',
 		group: ['transform'],
 		version: 1,
@@ -27,9 +28,15 @@ export class RetrieverVectorStore implements INodeType {
 			subcategories: {
 				AI: ['Retrievers'],
 			},
-			resources: {},
+			resources: {
+				primaryDocumentation: [
+					{
+						url: 'https://docs.n8n.io/integrations/builtin/cluster-nodes/sub-nodes/n8n-nodes-langchain.retrievervectorstore/',
+					},
+				],
+			},
 		},
-		// eslint-disable-next-line n8n-nodes-base/node-class-description-inputs-wrong-regular-node
+
 		inputs: [
 			{
 				displayName: 'Vector Store',
@@ -38,9 +45,20 @@ export class RetrieverVectorStore implements INodeType {
 				required: true,
 			},
 		],
-		// eslint-disable-next-line n8n-nodes-base/node-class-description-outputs-wrong
+
 		outputs: [NodeConnectionTypes.AiRetriever],
 		outputNames: ['Retriever'],
+		builderHint: {
+			relatedNodes: [
+				{
+					nodeType: '@n8n/n8n-nodes-langchain.vectorStoreInMemory',
+					relationHint: 'Connect to provide vectors for retrieval in RAG workflows',
+				},
+			],
+			inputs: {
+				ai_vectorStore: { required: true },
+			},
+		},
 		properties: [
 			{
 				displayName: 'Limit',
@@ -59,9 +77,23 @@ export class RetrieverVectorStore implements INodeType {
 		const vectorStore = (await this.getInputConnectionData(
 			NodeConnectionTypes.AiVectorStore,
 			itemIndex,
-		)) as VectorStore;
+		)) as
+			| VectorStore
+			| {
+					reranker: BaseDocumentCompressor;
+					vectorStore: VectorStore;
+			  };
 
-		const retriever = vectorStore.asRetriever(topK);
+		let retriever = null;
+
+		if (vectorStore instanceof VectorStore) {
+			retriever = vectorStore.asRetriever(topK);
+		} else {
+			retriever = new ContextualCompressionRetriever({
+				baseCompressor: vectorStore.reranker,
+				baseRetriever: vectorStore.vectorStore.asRetriever(topK),
+			});
+		}
 
 		return {
 			response: logWrapper(retriever, this),

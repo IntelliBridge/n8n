@@ -1,10 +1,10 @@
 import { SupabaseVectorStore } from '@langchain/community/vectorstores/supabase';
 import { createClient } from '@supabase/supabase-js';
-import { metadataFilterField } from '@utils/sharedFields';
 import { NodeOperationError, type INodeProperties } from 'n8n-workflow';
 
-import { createVectorStoreNode } from '../shared/createVectorStoreNode/createVectorStoreNode';
-import { supabaseTableNameSearch } from '../shared/createVectorStoreNode/methods/listSearch';
+import { metadataFilterField, createVectorStoreNode } from '@n8n/ai-utilities';
+
+import { supabaseTableNameSearch } from '../shared/methods/listSearch';
 import { supabaseTableNameRLC } from '../shared/descriptions';
 
 const queryNameField: INodeProperties = {
@@ -45,7 +45,8 @@ export class VectorStoreSupabase extends createVectorStoreNode<SupabaseVectorSto
 		description: 'Work with your data in Supabase Vector Store',
 		icon: 'file:supabase.svg',
 		displayName: 'Supabase Vector Store',
-		docsUrl: '',
+		docsUrl:
+			'https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.vectorstoresupabase/',
 		name: 'vectorStoreSupabase',
 		credentials: [
 			{
