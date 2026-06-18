@@ -1,0 +1,12 @@
+# Trivy ignore list for the flow deploy image (.github/workflows/flow-deploy.yml).
+# Only base-image OS packages that we cannot patch ourselves belong here — all
+# fixable npm dependencies are bumped via pnpm overrides in package.json, not
+# ignored.
+
+# CVE-2026-45447 — openssl heap UAF in PKCS7_verify(), in the alpine
+# libcrypto3/libssl3 of the n8nio/base runtime image. We cannot patch it: that
+# base image ships without apk, and the package set is controlled upstream by
+# n8n (it clears when they rebuild n8nio/base). Not reachable from n8n at
+# runtime either — Node.js uses its own bundled OpenSSL for crypto, not these
+# system libs. Re-evaluate on each upstream base bump.
+CVE-2026-45447
