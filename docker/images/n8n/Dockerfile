@@ -30,10 +30,7 @@ WORKDIR /home/node
 COPY --from=builder /usr/local/lib/node_modules/n8n /usr/local/lib/node_modules/n8n
 COPY docker/images/n8n/docker-entrypoint.sh /
 
-# Pull the latest patched OS packages (openssl/libcrypto3/libssl3) from the
-# alpine repos so the image isn't flagged for already-fixed base-image CVEs.
-RUN apk add --no-cache --upgrade libcrypto3 libssl3 && \
-    ln -s /usr/local/lib/node_modules/n8n/bin/n8n /usr/local/bin/n8n && \
+RUN ln -s /usr/local/lib/node_modules/n8n/bin/n8n /usr/local/bin/n8n && \
     mkdir -p /home/node/.n8n && \
     chown -R node:node /home/node && \
     rm -rf /root/.npm /tmp/*
