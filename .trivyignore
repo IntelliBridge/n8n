@@ -10,3 +10,11 @@
 # runtime either — Node.js uses its own bundled OpenSSL for crypto, not these
 # system libs. Re-evaluate on each upstream base bump.
 CVE-2026-45447
+
+# CVE-2026-33671 — picomatch ReDoS (HIGH). The pnpm graph resolves picomatch
+# to 4.0.4 (override "picomatch@4": "4.0.4"); this 4.0.3 copy is vendored
+# inside a transitive package's published tarball, so it is not in the lockfile
+# and cannot be rewritten by pnpm overrides. Fixable graph deps are bumped, not
+# ignored — this entry is only for the un-rewritable vendored copy. ReDoS is
+# DoS-only and not on a request-reachable path for n8n.
+CVE-2026-33671
