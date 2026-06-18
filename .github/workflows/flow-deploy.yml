@@ -56,7 +56,7 @@ jobs:
             --build-arg N8N_RELEASE_TYPE=stable \
             -t $ECR_REGISTRY/$ECR_REPO:${{ steps.meta.outputs.image_tag }} \
             --load \
-            -f docker/images/n8n/Dockerfile compiled
+            -f docker/images/n8n/Dockerfile .
 
       - name: Trivy scan
         uses: aquasecurity/trivy-action@master
