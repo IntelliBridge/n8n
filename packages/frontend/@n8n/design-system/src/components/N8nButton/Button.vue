@@ -237,7 +237,10 @@ const handleClick = (event: MouseEvent) => {
 		--button--color--background: var(--background--brand);
 		--button--color--background-hover: var(--background--brand--hover);
 		--button--color--background-active: var(--background--brand--active);
-		--button--color: var(--color--neutral-white);
+		// Text color on the brand background. Defaults to white (upstream's dark
+		// orange brand); the Flow rebrand sets a dark value via --button--solid--color--text
+		// because the brand is a light yellow that white text fails contrast on.
+		--button--color: var(--button--solid--color--text, var(--color--neutral-white));
 		--button--shadow: var(--shadow--xs);
 		--button--shadow--hover: var(--shadow--xs);
 		--button--shadow--active: var(--shadow--xs);

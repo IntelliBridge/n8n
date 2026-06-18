@@ -41,8 +41,12 @@
 	--color--orange-alpha-900: oklch(88.88% 0.1827 95.76 / 0.9);
 	--color--orange-alpha-950: oklch(88.88% 0.1827 95.76 / 0.95);
 
-	/* Yellow buttons need dark text (upstream uses white on orange) */
+	/* Yellow buttons need dark text (upstream uses white on orange).
+	 * --button--color--text--primary is the legacy token (N8nButton.legacy / el-button);
+	 * --button--solid--color--text drives the current N8nButton `solid` variant, whose
+	 * .solid CSS-module class hardcodes white and can't be reached from :root otherwise. */
 	--button--color--text--primary: rgb(32, 32, 32);
+	--button--solid--color--text: rgb(32, 32, 32);
 	--button--color--text--primary--disabled: #3d4551;
 	--button--border-color--primary--disabled: #ccc;
 	--button--color--background--primary--disabled: #ccc;
