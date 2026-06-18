@@ -44,7 +44,7 @@ const containerClasses = computed(() => {
 
 <template>
 	<div :class="containerClasses" data-test-id="n8n-logo">
-		<LogoIcon :class="$style.logo" />
+		<LogoIcon v-if="!showLogoText" :class="$style.logo" />
 		<LogoText v-if="showLogoText" :class="$style.logoText" />
 		<slot />
 	</div>
