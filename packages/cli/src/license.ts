@@ -252,6 +252,15 @@ export class License implements LicenseProvider {
 	}
 
 	isLicensed(feature: BooleanLicenseFeature) {
+		// FORK PATCH: unlock the AI workflow builder unlicensed for local testing.
+		// Remove this override once a real license entitlement is purchased.
+		// Gates both the @Licensed('feat:aiBuilder') controller endpoints
+		// (controller.registry.ts) and the frontend `aiBuilder.enabled` flag
+		// (frontend.service.ts). The `aiBuilder.setup` flag is satisfied separately
+		// by configuring N8N_AI_ASSISTANT_BASE_URL or the AI builder API key.
+		if (feature === LICENSE_FEATURES.AI_BUILDER) {
+			return true;
+		}
 		return this.manager?.hasFeatureEnabled(feature) ?? false;
 	}
 
