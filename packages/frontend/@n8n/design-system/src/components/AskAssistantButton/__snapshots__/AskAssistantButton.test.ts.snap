@@ -18,7 +18,7 @@ exports[`AskAssistantButton > renders button with unread messages correctly 1`] 
         <span
           class="text medium"
         >
-          n8n AI
+          Flow AI
         </span>
       </div>
     </div>
@@ -73,7 +73,7 @@ exports[`AskAssistantButton > renders default button correctly 1`] = `
         <span
           class="text medium"
         >
-          n8n AI
+          Flow AI
         </span>
       </div>
     </div>
