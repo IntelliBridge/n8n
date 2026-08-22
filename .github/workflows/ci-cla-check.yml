@@ -20,11 +20,6 @@ name: 'CI: CLA Check'
 #   loads its corresponding module and invokes its default export.
 
 on:
-  pull_request_target:
-    types: [opened, synchronize, reopened]
-  issue_comment:
-    types: [created]
-  merge_group:
   workflow_dispatch:
     inputs:
       pr_number:
