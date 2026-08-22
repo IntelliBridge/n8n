@@ -54,3 +54,67 @@ CVE-2026-6734
 # undici -> 7.28.0/8.5.0 (MitM via ignored TLS options with SOCKS5 proxy)
 CVE-2026-9697
 # ─────────────────────────────────────────────────────────────────────────────
+# n8n 2.25.7 -> 2.27.4 (app itself; cannot be overridden, needs a fork version bump)
+CVE-2026-59206
+CVE-2026-59207
+CVE-2026-59208
+CVE-2026-59209
+CVE-2026-65015
+CVE-2026-65016
+CVE-2026-65591
+CVE-2026-65592
+CVE-2026-65595
+CVE-2026-65597
+CVE-2026-65598
+# tar 7.5.11 -> 7.5.19/7.5.18 (PAX parsing tightened; create() now rejects on floating failures)
+CVE-2026-59873
+CVE-2026-59874
+# vm2 3.11.5 -> 3.11.6 (sandbox error payloads stripped; builtin:['*'] drops os/dns; bufferAllocLimit widened)
+CVE-2026-47686
+CVE-2026-47683
+CVE-2026-47698
+# postcss -> 8.5.18 (source maps outside opts.from no longer loaded without unsafeMap)
+CVE-2026-73646
+CVE-2026-45623
+# fast-uri 3.1.2 -> 3.1.5 (host parsing changed: IDN canonicalized, backslash is an authority delimiter)
+CVE-2026-18446
+CVE-2026-16221
+CVE-2026-13676
+# brace-expansion 2.1.0/5.0.6 -> 2.1.4/5.0.9 (maxLength cap truncates; 5.0.8 drops Node 18)
+CVE-2026-69152
+CVE-2026-14257
+CVE-2026-13149
+# nanoid -> 3.3.16/5.1.16 (negative size now throws RangeError; size 0 returns '')
+CVE-2026-67214
+CVE-2026-67213
+# ip-address 10.1.1 -> 10.3.1 (factories throw instead of truncating; to4() keeps prefix; toByteArray pads to 16)
+CVE-2026-69192
+# js-yaml 4.1.1 -> 4.3.0 (underscore numerics load as strings; maxDepth defaults to 100)
+CVE-2026-59869
+# linkify-it 5.0.0 -> 5.0.2 (mailto usernames over 64 chars no longer matched)
+CVE-2026-59887
+# adm-zip 0.5.16 -> 0.6.0 (extractEntryTo preserves subdirs; Node >=14; bundles own types)
+CVE-2026-39244
+# undici 7.24.0 -> 7.29.0 (maxDecompressedMessageSize and MessageSizeExceededError removed)
+CVE-2026-13697
+# n8n 2.25.7 -> 2.31.5 (app itself; cannot be overridden, needs a fork version bump)
+GHSA-2x35-3fw4-9jr4
+GHSA-64xh-79j6-r5v8
+GHSA-6qc9-mqvw-jg7x
+GHSA-8342-988q-86cr
+GHSA-cj9h-qx8g-pq2g
+GHSA-gf29-4f56-r2jf
+GHSA-gv7g-jm28-cr3m
+GHSA-rcv6-pvrj-4xcg
+GHSA-xmc9-4f2h-jf9c
+GHSA-xwx6-jjhv-84p8
+# axios 1.16.1 -> 1.18.0 (malformed URLs without // after protocol now throw ERR_INVALID_URL)
+GHSA-gcfj-64vw-6mp9
+# vm2 3.11.5 -> 3.11.6 (sandbox error payloads stripped; builtin:['*'] drops os/dns)
+GHSA-m5w8-4gq2-6f8x
+GHSA-v836-6xw4-9cx3
+# js-yaml 4.1.1 -> 4.3.1 (underscore numerics load as strings; maxDepth defaults to 100)
+GHSA-5p4m-2wfm-xmqj
+CVE-2026-59870
+# tar 7.5.11 -> 7.5.21 (recursion DoS; same breaking PAX/create() changes as 7.5.18)
+CVE-2026-73566
