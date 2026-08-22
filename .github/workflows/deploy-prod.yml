@@ -1,0 +1,34 @@
+name: Deploy Flow [Production]
+
+on:
+  push:
+    branches:
+      - main
+  # Creating `main` fires `push` with created=true, so the initial cutover deploy happens
+  # on branch creation. This is the manual fallback if that does not fire as expected.
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+
+# See deploy-staging.yml for why this is serialized.
+concurrency:
+  group: deploy-flow-production
+  cancel-in-progress: false
+
+jobs:
+  deploy_prod:
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      deployment-environment: 'production'
+      deployment-role: ${{ vars.AWS_ROLE_PROD }}
+      ecr-uri: '475428076062.dkr.ecr.us-east-1.amazonaws.com/flow'
+      cluster-name: prod-buildworkforce-ecs-cluster
+      main-service-name: n8n-main-service
+      worker-service-name: n8n-worker-service
+      main-taskdef-file: .github/workflows/ecs-task-def-main-prod.json
+      worker-taskdef-file: .github/workflows/ecs-task-def-worker-prod.json
+      secret-manager-arn: arn:aws:secretsmanager:us-east-1:475428076062:secret:prod/n8n-ALQ6dg
+      readiness-url: 'https://flow.buildworkforce.ai'

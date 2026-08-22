@@ -1,0 +1,37 @@
+name: Deploy Flow [Staging]
+
+on:
+  push:
+    branches:
+      - develop
+      - '*-gha'
+  workflow_dispatch: # allow staging deployment to be triggered manually
+
+permissions:
+  id-token: write
+  contents: read
+
+# Serialize staging deploys so simultaneous merges to develop queue instead of
+# racing on the same ECS services. ECS only allows one primary deployment per
+# service, so concurrent update-service calls make all but one fail. This matters
+# more here than for a single-service app: a cancelled run can leave the main and
+# worker services on mismatched image versions, which n8n does not support.
+concurrency:
+  group: deploy-flow-staging
+  cancel-in-progress: false
+
+jobs:
+  deploy_staging:
+    uses: ./.github/workflows/deploy-common.yml
+    secrets: inherit
+    with:
+      deployment-environment: 'staging'
+      deployment-role: ${{ vars.AWS_ROLE_STAGING }}
+      ecr-uri: '132880019009.dkr.ecr.us-east-1.amazonaws.com/flow'
+      cluster-name: staging-buildworkforce-ecs-cluster
+      main-service-name: n8n-main-service
+      worker-service-name: n8n-worker-service
+      main-taskdef-file: .github/workflows/ecs-task-def-main-staging.json
+      worker-taskdef-file: .github/workflows/ecs-task-def-worker-staging.json
+      secret-manager-arn: arn:aws:secretsmanager:us-east-1:132880019009:secret:staging/n8n-cNK1BS
+      readiness-url: 'https://flow.staging.buildworkforce.ai'
