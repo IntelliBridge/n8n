@@ -31,4 +31,4 @@ jobs:
       main-taskdef-file: .github/workflows/ecs-task-def-main-prod.json
       worker-taskdef-file: .github/workflows/ecs-task-def-worker-prod.json
       secret-manager-arn: arn:aws:secretsmanager:us-east-1:475428076062:secret:prod/n8n-ALQ6dg
-      readiness-url: 'https://flow.buildworkforce.ai'
+      readiness-url: 'https://flow.v2.buildworkforce.ai'
