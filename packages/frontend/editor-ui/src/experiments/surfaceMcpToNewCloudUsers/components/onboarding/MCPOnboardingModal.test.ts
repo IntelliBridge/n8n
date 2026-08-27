@@ -254,7 +254,9 @@ describe('MCPOnboardingModal', () => {
 		expect(container.textContent).toContain('Show me the Flow MCP connector');
 		expect(container.textContent).toContain('Paste the prompt in Claude');
 		expect(container.textContent).toContain('Paste Server URL');
-		expect(container.textContent).not.toContain('claude mcp add --scope user --transport http Flow');
+		expect(container.textContent).not.toContain(
+			'claude mcp add --scope user --transport http Flow',
+		);
 		expect(queryByTestId('mcp-onboarding-restart-step')).not.toBeInTheDocument();
 	});
 
